@@ -24,7 +24,7 @@ Entry points: the holding page, the workspace, `POST /api/packs`, comments, appr
 
 Residual risk accepted for the pilot, and not accepted for a public multi-tenant launch:
 
-- One shared passphrase space instead of an enterprise identity provider (ADR 005). Sign-in has no rate limit. Both stay labelled in the UI and the DPIA.
+- One shared passphrase space instead of an enterprise identity provider (ADR 005). Sign-in is limited to 8 failures in 15 minutes for one address. The shared passphrase stays labelled in the UI and the DPIA.
 - Hosted inference seeing brief and excerpt text (DPIA).
 - DNS rebinding is narrowed by a second lookup immediately before fetch (T5, T8). The TCP connection still uses the hostname, so the check and the connect can disagree. Pinning the connect to the checked address is not implemented.
 - IPv6 literals other than IPv4-mapped addresses are refused, including public IPv6 hosts.

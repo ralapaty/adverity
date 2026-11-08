@@ -3,7 +3,9 @@ import { createFixtureModel } from "../adapters/fixture-model";
 import { createHttpModel } from "../adapters/http-model";
 import type { ModelAdapter } from "../domain/pipeline";
 import { fetchPublicExcerpt } from "../evidence/fetch";
+import { retentionDays } from "../domain/privacy";
 import { getDb, resetDb, type Env } from "../db/db";
+import { purgeExpiredPacks } from "./privacy-store";
 
 export type AppDeps = {
   env: Env;
@@ -42,5 +44,7 @@ export function appDeps(): AppDeps {
 
 export function database() {
   const deps = appDeps();
-  return getDb(deps.env.ADVERITY_DB || "./data/adverity.sqlite", deps.env.ADVERITY_PILOT_PASSPHRASE);
+  const db = getDb(deps.env.ADVERITY_DB || "./data/adverity.sqlite", deps.env.ADVERITY_PILOT_PASSPHRASE);
+  purgeExpiredPacks(db, retentionDays(deps.env.ADVERITY_RETENTION_DAYS));
+  return db;
 }

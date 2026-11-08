@@ -6,7 +6,9 @@ import { canRecordApproval, evaluateExport, routeRole, type ApprovalRecord, type
 import { buildPmaxHandoff, buildSearchCsv, handoffProblems, IMPORT_NOTE, type KeywordRow } from "../domain/handoff";
 import { runPipeline, type PipelineInput, type PipelineResult } from "../domain/pipeline";
 import { classifyUrl } from "../domain/url-guard";
+import { SIGN_IN_LIMIT } from "../domain/privacy";
 import { newId, verifyPassphrase } from "../db/db";
+import { deleteActorPacks, recordSignInFailure, signInFailureCount } from "./privacy-store";
 import type { AppDeps } from "./deps";
 
 const createSchema = z.object({
@@ -37,12 +39,20 @@ export function tokensMatch(left: string, right: string): boolean {
   return timingSafeEqual(a, b);
 }
 
-export function signIn(db: DatabaseSync, username: string, passphrase: string): { sessionId: string; csrf: string; actorId: string } | null {
+export function signIn(
+  db: DatabaseSync,
+  username: string,
+  passphrase: string,
+  address = "unknown",
+): { sessionId: string; csrf: string; actorId: string } | { limited: true } | null {
+  if (signInFailureCount(db, address) >= SIGN_IN_LIMIT) return { limited: true };
   const actor = db.prepare("SELECT id, passphrase_hash FROM actor WHERE id = ?").get(username) as
     | { id: string; passphrase_hash: string }
     | undefined;
-  if (!actor) return null;
-  if (!verifyPassphrase(passphrase, actor.passphrase_hash)) return null;
+  if (!actor || !verifyPassphrase(passphrase, actor.passphrase_hash)) {
+    recordSignInFailure(db, address);
+    return null;
+  }
   const sessionId = newId("ses");
   const csrf = randomBytes(16).toString("hex");
   db.prepare("INSERT INTO session (id, actor_id, csrf_token, expires_at) VALUES (?, ?, ?, ?)").run(
@@ -620,4 +630,14 @@ export function grantConsent(db: DatabaseSync, actorId: string): void {
     actorId,
     new Date().toISOString(),
   );
+}
+
+export function withdrawConsent(db: DatabaseSync, actorId: string): void {
+  db.prepare("DELETE FROM consent WHERE actor_id = ?").run(actorId);
+}
+
+export function eraseActorPacks(db: DatabaseSync, deps: AppDeps, actorId: string, traceId: string): { deleted: number } {
+  const deleted = deleteActorPacks(db, actorId);
+  audit(db, deps, "data_deleted", { traceId, actorId, detail: { packs: deleted } });
+  return { deleted };
 }

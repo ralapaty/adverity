@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>AdVerity — Grona Growth Marketing Hackathon</title>
+<style>
+  @page { size: 13.333in 7.5in; margin: 0; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #f4f1ea; }
+  body {
+    font-family: "Avenir Next", "Avenir", "Helvetica Neue", sans-serif;
+    color: #142222;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .slide {
+    width: 13.333in;
+    height: 7.5in;
+    position: relative;
+    overflow: hidden;
+    page-break-after: always;
+    break-after: page;
+    background: #f7f4ef;
+  }
+  .slide:last-child { page-break-after: auto; break-after: auto; }
+  .rail { position: absolute; left: 0; top: 0; bottom: 0; width: 0.14in; background: #f1744f; }
+  .pad { position: absolute; inset: 0.52in 0.72in 0.48in 0.78in; }
+  .logo { height: 0.62in; width: auto; display: block; }
+  .eyebrow {
+    margin: 0.38in 0 0;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #f1744f;
+  }
+  h1 {
+    margin: 0.16in 0 0;
+    max-width: 11.2in;
+    font-size: 68px;
+    font-weight: 650;
+    line-height: 0.98;
+    letter-spacing: -0.03em;
+    color: #0a5a5d;
+  }
+  .lede {
+    margin: 0.28in 0 0;
+    max-width: 9.4in;
+    font-size: 26px;
+    line-height: 1.28;
+    font-weight: 500;
+    color: #243433;
+  }
+  .bar {
+    position: absolute;
+    left: 0.14in;
+    right: 0;
+    bottom: 0;
+    height: 1.22in;
+    background: #0a5a5d;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 0.72in 0 0.64in;
+  }
+  .bar strong { font-size: 22px; font-weight: 600; letter-spacing: -0.01em; }
+  .bar span { margin-top: 6px; font-size: 16px; color: rgba(255,255,255,0.82); }
+  h2 {
+    margin: 0.28in 0 0;
+    font-size: 40px;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    font-weight: 650;
+    color: #0a5a5d;
+  }
+  .steps {
+    margin-top: 0.36in;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.16in;
+  }
+  .step {
+    background: #fff;
+    border-radius: 12px;
+    min-height: 2.35in;
+    padding: 0.22in 0.18in 0.2in;
+    box-shadow: 0 0 0 1px #e6e0d6;
+  }
+  .num {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    color: #f1744f;
+  }
+  .step h3 {
+    margin: 0.12in 0 0;
+    font-size: 22px;
+    letter-spacing: -0.02em;
+    color: #0a5a5d;
+  }
+  .step p {
+    margin: 0.1in 0 0;
+    font-size: 15px;
+    line-height: 1.35;
+    color: #243433;
+  }
+  .note {
+    position: absolute;
+    left: 0.78in;
+    right: 0.72in;
+    bottom: 0.42in;
+    font-size: 16px;
+    color: #3d4f4f;
+  }
+  .dark { background: #0a5a5d; color: #fff; }
+  .dark h2 { color: #fff; }
+  .chip {
+    display: inline-block;
+    background: #f7f4ef;
+    border-radius: 10px;
+    padding: 0.1in 0.16in 0.08in;
+  }
+  .cols {
+    margin-top: 0.38in;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0.28in;
+  }
+  .cols h3 {
+    margin: 0.1in 0 0;
+    font-size: 22px;
+    letter-spacing: -0.02em;
+  }
+  .cols p {
+    margin: 0.1in 0 0;
+    font-size: 16px;
+    line-height: 1.38;
+    color: rgba(255,255,255,0.9);
+  }
+  .foot {
+    position: absolute;
+    left: 0.78in;
+    right: 0.72in;
+    bottom: 0.4in;
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    letter-spacing: 0.04em;
+    color: rgba(255,255,255,0.78);
+  }
+  .foot b { color: #f1744f; font-weight: 600; }
+</style>
+</head>
+<body>
+  <section class="slide">
+    <div class="rail"></div>
+    <div class="pad">
+      <img class="logo" alt="AdVerity" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1ODAiIGhlaWdodD0iMTQyIiB2aWV3Qm94PSIwIDAgNTgwIDE0MiIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsbGVkYnk9InRpdGxlIj4KPHRpdGxlIGlkPSJ0aXRsZSI+QWRWZXJpdHk8L3RpdGxlPgo8ZGVzYz5WZWN0b3IgdHJhY2Ugb2YgdGhlIHN1cHBsaWVkIEFkVmVyaXR5IGJpdG1hcC4gQ291bnRzIGFuZCBsZXR0ZXJmb3JtcyBmb2xsb3cgdGhhdCBhcnR3b3JrLjwvZGVzYz4KPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMC4wMDAwMDAsMTQyLjAwMDAwMCkgc2NhbGUoMC4xMDAwMDAsLTAuMTAwMDAwKSIgZmlsbD0iIzBhNWE1ZCI+CjxwYXRoIGQ9Ik01NTkgMTI0OCBjLTM0IC0zNiAtNzYgLTExOSAtMjQ2IC00OTMgLTI3NyAtNjEwIC0yNDkgLTU0MCAtMjI5Ci01NzAgMTYgLTI1IDE3IC0yNSAxNjYgLTI1IDE0NCAwIDE1MCAxIDE2NCAyMyAxNSAyMyAxMjYgMjYyIDEyNiAyNzIgMCAzIC0zNAo1IC03NSA1IC01MCAwIC03NSA0IC03NSAxMSAwIDIyIDE4MyAzOTQgMjA2IDQxOCAyMiAyMyAyNSAyNCAxODAgMjIgMTczIC0yCjE5MiAtNyAyMzkgLTYzIDQwIC00NyA1NyAtOTQgNTcgLTE1OCAwIC0xMDUgLTc0IC0yMDUgLTE2NyAtMjI5IC00MSAtMTAgLTE3NQotNjggLTE3NSAtNzUgMCAtMiAyNCAxIDUzIDYgbDUyIDEwIDM0IC0zOSBjMTggLTIxIDY1IC03NSAxMDMgLTEyMSBsNjkgLTgyCjE4MiAyIDE4MSAzIDE1IDI2IGMxMyAyNCA0IDQ4IC0yMTQgNTIwIC0xMjUgMjcyIC0yNDAgNTEyIC0yNTQgNTM0IGwtMjcgNDAKLTE2MiAzIC0xNjIgMiAtNDEgLTQyeiBNNDUwNSAxMDk0IGMtNDAgLTQzIC0yOCAtMTIwIDIyIC0xNDMgNDAgLTE4IDczIC0xMwoxMDQgMTggNjAgNjEgMjQgMTUxIC02MSAxNTEgLTMxIDAgLTQ3IC02IC02NSAtMjZ6IE0xODYwIDEwNzggYy0xNiAtMzkgLTI3MAotNzA5IC0yNzAgLTcxNCAwIC0yIDQwIC00IDg4IC00IGw4OCAwIDI1IDY4IDI0IDY3IDE0OSAwIDE0OSAwIDI1IC02NyAyNSAtNjgKODggMCBjNjYgMCA4NyAzIDg1IDEyIC0zIDcgLTY0IDE3NCAtMTM4IDM3MCBsLTEzMyAzNTggLTk4IDAgYy05MiAwIC05OCAtMQotMTA3IC0yMnogbTE1OSAtMzIyIGwzOSAtMTA2IC05NCAwIC05NCAwIDE5IDQ4IGMxMCAyNiAzMSA4MCA0NiAxMjAgMjAgNTAgMzEKNjkgMzcgNTkgNCAtOCAyNSAtNjIgNDcgLTEyMXogTTI3MTcgMTA5NCBjLTQgLTQgLTcgLTYzIC03IC0xMzEgMCAtNjcgLTEKLTEyMyAtMyAtMTIzIC0xIDAgLTIwIDkgLTQyIDIwIC04MSA0MSAtMjAxIDE4IC0yNjYgLTUyIC01MSAtNTQgLTcyIC0xMTMgLTcyCi0xOTggMCAtNjEgNSAtODQgMjYgLTEyNiAzMCAtNTkgODYgLTExMCAxMzcgLTEyNCA2NiAtMTggMTM5IC0xMiAxODcgMTUgNDIKMjUgNDMgMjUgNDMgNSAwIC0xOCA2IC0yMCA3NSAtMjAgbDc1IDAgMiAzNjMgMyAzNjIgMjcgLTcwIGMxNCAtMzggNzYgLTIwMAoxMzYgLTM2MCBsMTEwIC0yOTAgOTUgLTMgOTUgLTMgMTMgMzggYzYgMjEgNjggMTg0IDEzNiAzNjMgNjcgMTc4IDEyMyAzMjgKMTIzIDMzMiAwIDEyIC0xNzggMTAgLTE4NSAtMiAtMyAtNSAtNDQgLTExNiAtOTEgLTI0NyAtNDYgLTEzMCAtODcgLTIzOSAtODkKLTI0MSAtNiAtNiAtMTYgMTggLTEwNCAyNjggbC03OSAyMjUgLTE2OSAzIGMtOTMgMSAtMTcyIC0xIC0xNzYgLTR6IG0tODAKLTM2NCBjOCAwIDI4IC0xMyA0NCAtMjkgMjUgLTI1IDI5IC0zNyAyOSAtODQgMCAtNDUgLTUgLTYxIC0yNSAtODUgLTQ4IC01NwotMTQ2IC00NyAtMTc5IDE3IC0zMSA1OSAtMTMgMTQ0IDM2IDE2OCAzNSAxOCA1MiAyMiA2NiAxNyA4IC0yIDIwIC00IDI5IC00egpNNDc5MCA5NDAgbDAgLTcwIC00MCAwIC00MCAwIDAgLTcxIGMwIC00NSA0IC02OCAxMCAtNjQgNiA0IDI0IDQgNDAgMCBsMzAgLTcKMCAtMTI5IGMwIC0xNDggMTAgLTE4MyA2MSAtMjIwIDI3IC0xOSA0OSAtMjUgMTEwIC0yNyA5NyAtNSAxMTEgNiAxMDcgODcgbC0zCjU2IC00MyAtMyBjLTY3IC01IC03MiA0IC03MiAxMjkgbDAgMTA5IDQ1IDEgYzI1IDEgNTEgMiA1OCAzIDggMSAxMiAyMCAxMyA1NgowIDMwIC0xIDYxIC00IDY4IC0zIDcgLTI0IDEyIC01OCAxMiBsLTU0IDAgMCA3MCAwIDcwIC04MCAwIC04MCAwIDAgLTcwegpNMzY5MiA4NjcgYy00OSAtMTUgLTEyMiAtODUgLTE0OCAtMTQyIC0xNyAtMzYgLTI0IC02OCAtMjQgLTExNSAxIC0xMDcgNDkKLTE4OCAxNDIgLTIzNCA0MiAtMjEgNjYgLTI2IDEyNyAtMjYgNzggMCAxMzMgMTggMTc2IDU3IDI0IDIxIDY5IDgzIDY0IDg3IC0yCjIgLTMzIDEzIC02OSAyNSAtNjMgMjEgLTY1IDIxIC04MCAyIC00OCAtNjAgLTE1OCAtNTIgLTE4OCAxNCAtNyAxNCAtMTIgMjgKLTEyIDMwIDAgMyA4MSA1IDE4MCA1IGwxODAgMCAwIDU4IGMwIDEwNiAtNzUgMjEyIC0xNjkgMjQwIC00NiAxNCAtMTM0IDE0Ci0xNzkgLTF6IG0xNDcgLTEzMSBjMTUgLTggMzIgLTI2IDM5IC00MCBsMTIgLTI2IC0xMDUgMCAtMTA1IDAgMTIgMjYgYzIzIDQ5CjkyIDY4IDE0NyA0MHogTTQzMjAgODY5IGMtMTQgLTYgLTM1IC0yMCAtNDcgLTMxIGwtMjMgLTIxIDAgMjYgYzAgMjcgMCAyNwotNzUgMjcgbC03NSAwIDAgLTI1NSAwIC0yNTUgODAgMCA4MCAwIDAgMTUwIDAgMTUwIDI5IDMyIGMyNyAzMCAzNSAzMyA4NiAzMwpsNTYgMCAtMyA3NSAtMyA3NSAtNDAgMiBjLTIyIDEgLTUxIC0yIC02NSAtOHogTTQ0OTAgNjE1IGwwIC0yNTUgODAgMCA4MCAwIDAKMjU1IDAgMjU1IC04MCAwIC04MCAwIDAgLTI1NXogTTUxMTkgODIzIGMxMSAtMjcgNTggLTE0MCAxMDYgLTI1MyA1OSAtMTQyIDg0Ci0yMTIgODAgLTIyOCAtMyAtMTMgLTE3IC0zNSAtMzEgLTQ5IC0yMCAtMjAgLTMzIC0yNCAtNjUgLTIxIGwtMzkgNCAwIC03MyAwCi03MyA2NyAwIGM1MyAwIDc1IDUgMTA5IDI1IDIzIDE0IDUxIDM3IDYyIDUzIDE3IDIzIDI3MiA2NDAgMjcyIDY1NiAwIDMgLTM4CjYgLTg1IDYgLTc5IDAgLTg2IC0yIC05NSAtMjIgLTUgLTEzIC0zMSAtODMgLTU4IC0xNTYgbC00OCAtMTM0IC0zOCAxMDQgYy0yMQo1NiAtNDcgMTI3IC01OCAxNTYgbC0xOSA1MiAtOTAgMCAtODkgMCAxOSAtNDd6Ii8+CjwvZz4KPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMC4wMDAwMDAsMTQyLjAwMDAwMCkgc2NhbGUoMC4xMDAwMDAsLTAuMTAwMDAwKSIgZmlsbD0iI2YxNzQ0ZiI+CjxwYXRoIGQ9Ik04MTcgNzQwIGMtOTAgLTg5IC05MCAtODkgLTEyNCAtNjAgLTE5IDE3IC00MCAzMCAtNDggMzAgLTE5IDAgLTY1Ci00NCAtNjUgLTYxIDAgLTIwIDEzMiAtMTQ5IDE1MSAtMTQ5IDE2IDAgMjU5IDI0MyAyNTkgMjU5IDAgMTQgLTU3IDcxIC03MSA3MQotNyAwIC01MyAtNDAgLTEwMiAtOTB6Ii8+CjwvZz4KPC9zdmc+Cg==" />
+      <p class="eyebrow">Growth Marketing Hackathon · Lisbon · 8 November 2026</p>
+      <h1>AI can draft the ads.<br />The sign-off is the product.</h1>
+      <p class="lede">Freelance user-acquisition managers and in-house Google Ads specialists lose the launch to rewrites, unsupported claims, and a version nobody can point to.</p>
+    </div>
+    <div class="bar">
+      <strong>AdVerity. AI drafts. Copy experts refine. Clients approve.</strong>
+      <span>A product URL and a brief become a review-ready Google Search draft. Spend stays with the advertiser.</span>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="rail"></div>
+    <div class="pad">
+      <img class="logo" alt="AdVerity" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1ODAiIGhlaWdodD0iMTQyIiB2aWV3Qm94PSIwIDAgNTgwIDE0MiIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsbGVkYnk9InRpdGxlIj4KPHRpdGxlIGlkPSJ0aXRsZSI+QWRWZXJpdHk8L3RpdGxlPgo8ZGVzYz5WZWN0b3IgdHJhY2Ugb2YgdGhlIHN1cHBsaWVkIEFkVmVyaXR5IGJpdG1hcC4gQ291bnRzIGFuZCBsZXR0ZXJmb3JtcyBmb2xsb3cgdGhhdCBhcnR3b3JrLjwvZGVzYz4KPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMC4wMDAwMDAsMTQyLjAwMDAwMCkgc2NhbGUoMC4xMDAwMDAsLTAuMTAwMDAwKSIgZmlsbD0iIzBhNWE1ZCI+CjxwYXRoIGQ9Ik01NTkgMTI0OCBjLTM0IC0zNiAtNzYgLTExOSAtMjQ2IC00OTMgLTI3NyAtNjEwIC0yNDkgLTU0MCAtMjI5Ci01NzAgMTYgLTI1IDE3IC0yNSAxNjYgLTI1IDE0NCAwIDE1MCAxIDE2NCAyMyAxNSAyMyAxMjYgMjYyIDEyNiAyNzIgMCAzIC0zNAo1IC03NSA1IC01MCAwIC03NSA0IC03NSAxMSAwIDIyIDE4MyAzOTQgMjA2IDQxOCAyMiAyMyAyNSAyNCAxODAgMjIgMTczIC0yCjE5MiAtNyAyMzkgLTYzIDQwIC00NyA1NyAtOTQgNTcgLTE1OCAwIC0xMDUgLTc0IC0yMDUgLTE2NyAtMjI5IC00MSAtMTAgLTE3NQotNjggLTE3NSAtNzUgMCAtMiAyNCAxIDUzIDYgbDUyIDEwIDM0IC0zOSBjMTggLTIxIDY1IC03NSAxMDMgLTEyMSBsNjkgLTgyCjE4MiAyIDE4MSAzIDE1IDI2IGMxMyAyNCA0IDQ4IC0yMTQgNTIwIC0xMjUgMjcyIC0yNDAgNTEyIC0yNTQgNTM0IGwtMjcgNDAKLTE2MiAzIC0xNjIgMiAtNDEgLTQyeiBNNDUwNSAxMDk0IGMtNDAgLTQzIC0yOCAtMTIwIDIyIC0xNDMgNDAgLTE4IDczIC0xMwoxMDQgMTggNjAgNjEgMjQgMTUxIC02MSAxNTEgLTMxIDAgLTQ3IC02IC02NSAtMjZ6IE0xODYwIDEwNzggYy0xNiAtMzkgLTI3MAotNzA5IC0yNzAgLTcxNCAwIC0yIDQwIC00IDg4IC00IGw4OCAwIDI1IDY4IDI0IDY3IDE0OSAwIDE0OSAwIDI1IC02NyAyNSAtNjgKODggMCBjNjYgMCA4NyAzIDg1IDEyIC0zIDcgLTY0IDE3NCAtMTM4IDM3MCBsLTEzMyAzNTggLTk4IDAgYy05MiAwIC05OCAtMQotMTA3IC0yMnogbTE1OSAtMzIyIGwzOSAtMTA2IC05NCAwIC05NCAwIDE5IDQ4IGMxMCAyNiAzMSA4MCA0NiAxMjAgMjAgNTAgMzEKNjkgMzcgNTkgNCAtOCAyNSAtNjIgNDcgLTEyMXogTTI3MTcgMTA5NCBjLTQgLTQgLTcgLTYzIC03IC0xMzEgMCAtNjcgLTEKLTEyMyAtMyAtMTIzIC0xIDAgLTIwIDkgLTQyIDIwIC04MSA0MSAtMjAxIDE4IC0yNjYgLTUyIC01MSAtNTQgLTcyIC0xMTMgLTcyCi0xOTggMCAtNjEgNSAtODQgMjYgLTEyNiAzMCAtNTkgODYgLTExMCAxMzcgLTEyNCA2NiAtMTggMTM5IC0xMiAxODcgMTUgNDIKMjUgNDMgMjUgNDMgNSAwIC0xOCA2IC0yMCA3NSAtMjAgbDc1IDAgMiAzNjMgMyAzNjIgMjcgLTcwIGMxNCAtMzggNzYgLTIwMAoxMzYgLTM2MCBsMTEwIC0yOTAgOTUgLTMgOTUgLTMgMTMgMzggYzYgMjEgNjggMTg0IDEzNiAzNjMgNjcgMTc4IDEyMyAzMjgKMTIzIDMzMiAwIDEyIC0xNzggMTAgLTE4NSAtMiAtMyAtNSAtNDQgLTExNiAtOTEgLTI0NyAtNDYgLTEzMCAtODcgLTIzOSAtODkKLTI0MSAtNiAtNiAtMTYgMTggLTEwNCAyNjggbC03OSAyMjUgLTE2OSAzIGMtOTMgMSAtMTcyIC0xIC0xNzYgLTR6IG0tODAKLTM2NCBjOCAwIDI4IC0xMyA0NCAtMjkgMjUgLTI1IDI5IC0zNyAyOSAtODQgMCAtNDUgLTUgLTYxIC0yNSAtODUgLTQ4IC01NwotMTQ2IC00NyAtMTc5IDE3IC0zMSA1OSAtMTMgMTQ0IDM2IDE2OCAzNSAxOCA1MiAyMiA2NiAxNyA4IC0yIDIwIC00IDI5IC00egpNNDc5MCA5NDAgbDAgLTcwIC00MCAwIC00MCAwIDAgLTcxIGMwIC00NSA0IC02OCAxMCAtNjQgNiA0IDI0IDQgNDAgMCBsMzAgLTcKMCAtMTI5IGMwIC0xNDggMTAgLTE4MyA2MSAtMjIwIDI3IC0xOSA0OSAtMjUgMTEwIC0yNyA5NyAtNSAxMTEgNiAxMDcgODcgbC0zCjU2IC00MyAtMyBjLTY3IC01IC03MiA0IC03MiAxMjkgbDAgMTA5IDQ1IDEgYzI1IDEgNTEgMiA1OCAzIDggMSAxMiAyMCAxMyA1NgowIDMwIC0xIDYxIC00IDY4IC0zIDcgLTI0IDEyIC01OCAxMiBsLTU0IDAgMCA3MCAwIDcwIC04MCAwIC04MCAwIDAgLTcwegpNMzY5MiA4NjcgYy00OSAtMTUgLTEyMiAtODUgLTE0OCAtMTQyIC0xNyAtMzYgLTI0IC02OCAtMjQgLTExNSAxIC0xMDcgNDkKLTE4OCAxNDIgLTIzNCA0MiAtMjEgNjYgLTI2IDEyNyAtMjYgNzggMCAxMzMgMTggMTc2IDU3IDI0IDIxIDY5IDgzIDY0IDg3IC0yCjIgLTMzIDEzIC02OSAyNSAtNjMgMjEgLTY1IDIxIC04MCAyIC00OCAtNjAgLTE1OCAtNTIgLTE4OCAxNCAtNyAxNCAtMTIgMjgKLTEyIDMwIDAgMyA4MSA1IDE4MCA1IGwxODAgMCAwIDU4IGMwIDEwNiAtNzUgMjEyIC0xNjkgMjQwIC00NiAxNCAtMTM0IDE0Ci0xNzkgLTF6IG0xNDcgLTEzMSBjMTUgLTggMzIgLTI2IDM5IC00MCBsMTIgLTI2IC0xMDUgMCAtMTA1IDAgMTIgMjYgYzIzIDQ5CjkyIDY4IDE0NyA0MHogTTQzMjAgODY5IGMtMTQgLTYgLTM1IC0yMCAtNDcgLTMxIGwtMjMgLTIxIDAgMjYgYzAgMjcgMCAyNwotNzUgMjcgbC03NSAwIDAgLTI1NSAwIC0yNTUgODAgMCA4MCAwIDAgMTUwIDAgMTUwIDI5IDMyIGMyNyAzMCAzNSAzMyA4NiAzMwpsNTYgMCAtMyA3NSAtMyA3NSAtNDAgMiBjLTIyIDEgLTUxIC0yIC02NSAtOHogTTQ0OTAgNjE1IGwwIC0yNTUgODAgMCA4MCAwIDAKMjU1IDAgMjU1IC04MCAwIC04MCAwIDAgLTI1NXogTTUxMTkgODIzIGMxMSAtMjcgNTggLTE0MCAxMDYgLTI1MyA1OSAtMTQyIDg0Ci0yMTIgODAgLTIyOCAtMyAtMTMgLTE3IC0zNSAtMzEgLTQ5IC0yMCAtMjAgLTMzIC0yNCAtNjUgLTIxIGwtMzkgNCAwIC03MyAwCi03MyA2NyAwIGM1MyAwIDc1IDUgMTA5IDI1IDIzIDE0IDUxIDM3IDYyIDUzIDE3IDIzIDI3MiA2NDAgMjcyIDY1NiAwIDMgLTM4CjYgLTg1IDYgLTc5IDAgLTg2IC0yIC05NSAtMjIgLTUgLTEzIC0zMSAtODMgLTU4IC0xNTYgbC00OCAtMTM0IC0zOCAxMDQgYy0yMQo1NiAtNDcgMTI3IC01OCAxNTYgbC0xOSA1MiAtOTAgMCAtODkgMCAxOSAtNDd6Ii8+CjwvZz4KPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMC4wMDAwMDAsMTQyLjAwMDAwMCkgc2NhbGUoMC4xMDAwMDAsLTAuMTAwMDAwKSIgZmlsbD0iI2YxNzQ0ZiI+CjxwYXRoIGQ9Ik04MTcgNzQwIGMtOTAgLTg5IC05MCAtODkgLTEyNCAtNjAgLTE5IDE3IC00MCAzMCAtNDggMzAgLTE5IDAgLTY1Ci00NCAtNjUgLTYxIDAgLTIwIDEzMiAtMTQ5IDE1MSAtMTQ5IDE2IDAgMjU5IDI0MyAyNTkgMjU5IDAgMTQgLTU3IDcxIC03MSA3MQotNyAwIC01MyAtNDAgLTEwMiAtOTB6Ii8+CjwvZz4KPC9zdmc+Cg==" />
+      <h2>Agents draft. A person signs the exact version.</h2>
+      <div class="steps">
+        <article class="step">
+          <div class="num">01</div>
+          <h3>Evidence</h3>
+          <p>Read the public page. The page is data, not an instruction.</p>
+        </article>
+        <article class="step">
+          <div class="num">02</div>
+          <h3>Draft</h3>
+          <p>A private playbook shapes the argument. The brief is not used for training.</p>
+        </article>
+        <article class="step">
+          <div class="num">03</div>
+          <h3>Critic</h3>
+          <p>A second pass rejects a claim the page has not supported.</p>
+        </article>
+        <article class="step">
+          <div class="num">04</div>
+          <h3>Count</h3>
+          <p>Character limits are checked in code. Nothing is silently cut to fit.</p>
+        </article>
+        <article class="step">
+          <div class="num">05</div>
+          <h3>Sign-off</h3>
+          <p>Copy expert, then the client or the internal owner. An edit clears both.</p>
+        </article>
+      </div>
+    </div>
+    <p class="note">The website is that review room. HealthCrew.ai is the worked example, not a customer.</p>
+  </section>
+
+  <section class="slide dark">
+    <div class="pad">
+      <div class="chip"><img class="logo" alt="AdVerity" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1ODAiIGhlaWdodD0iMTQyIiB2aWV3Qm94PSIwIDAgNTgwIDE0MiIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsbGVkYnk9InRpdGxlIj4KPHRpdGxlIGlkPSJ0aXRsZSI+QWRWZXJpdHk8L3RpdGxlPgo8ZGVzYz5WZWN0b3IgdHJhY2Ugb2YgdGhlIHN1cHBsaWVkIEFkVmVyaXR5IGJpdG1hcC4gQ291bnRzIGFuZCBsZXR0ZXJmb3JtcyBmb2xsb3cgdGhhdCBhcnR3b3JrLjwvZGVzYz4KPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMC4wMDAwMDAsMTQyLjAwMDAwMCkgc2NhbGUoMC4xMDAwMDAsLTAuMTAwMDAwKSIgZmlsbD0iIzBhNWE1ZCI+CjxwYXRoIGQ9Ik01NTkgMTI0OCBjLTM0IC0zNiAtNzYgLTExOSAtMjQ2IC00OTMgLTI3NyAtNjEwIC0yNDkgLTU0MCAtMjI5Ci01NzAgMTYgLTI1IDE3IC0yNSAxNjYgLTI1IDE0NCAwIDE1MCAxIDE2NCAyMyAxNSAyMyAxMjYgMjYyIDEyNiAyNzIgMCAzIC0zNAo1IC03NSA1IC01MCAwIC03NSA0IC03NSAxMSAwIDIyIDE4MyAzOTQgMjA2IDQxOCAyMiAyMyAyNSAyNCAxODAgMjIgMTczIC0yCjE5MiAtNyAyMzkgLTYzIDQwIC00NyA1NyAtOTQgNTcgLTE1OCAwIC0xMDUgLTc0IC0yMDUgLTE2NyAtMjI5IC00MSAtMTAgLTE3NQotNjggLTE3NSAtNzUgMCAtMiAyNCAxIDUzIDYgbDUyIDEwIDM0IC0zOSBjMTggLTIxIDY1IC03NSAxMDMgLTEyMSBsNjkgLTgyCjE4MiAyIDE4MSAzIDE1IDI2IGMxMyAyNCA0IDQ4IC0yMTQgNTIwIC0xMjUgMjcyIC0yNDAgNTEyIC0yNTQgNTM0IGwtMjcgNDAKLTE2MiAzIC0xNjIgMiAtNDEgLTQyeiBNNDUwNSAxMDk0IGMtNDAgLTQzIC0yOCAtMTIwIDIyIC0xNDMgNDAgLTE4IDczIC0xMwoxMDQgMTggNjAgNjEgMjQgMTUxIC02MSAxNTEgLTMxIDAgLTQ3IC02IC02NSAtMjZ6IE0xODYwIDEwNzggYy0xNiAtMzkgLTI3MAotNzA5IC0yNzAgLTcxNCAwIC0yIDQwIC00IDg4IC00IGw4OCAwIDI1IDY4IDI0IDY3IDE0OSAwIDE0OSAwIDI1IC02NyAyNSAtNjgKODggMCBjNjYgMCA4NyAzIDg1IDEyIC0zIDcgLTY0IDE3NCAtMTM4IDM3MCBsLTEzMyAzNTggLTk4IDAgYy05MiAwIC05OCAtMQotMTA3IC0yMnogbTE1OSAtMzIyIGwzOSAtMTA2IC05NCAwIC05NCAwIDE5IDQ4IGMxMCAyNiAzMSA4MCA0NiAxMjAgMjAgNTAgMzEKNjkgMzcgNTkgNCAtOCAyNSAtNjIgNDcgLTEyMXogTTI3MTcgMTA5NCBjLTQgLTQgLTcgLTYzIC03IC0xMzEgMCAtNjcgLTEKLTEyMyAtMyAtMTIzIC0xIDAgLTIwIDkgLTQyIDIwIC04MSA0MSAtMjAxIDE4IC0yNjYgLTUyIC01MSAtNTQgLTcyIC0xMTMgLTcyCi0xOTggMCAtNjEgNSAtODQgMjYgLTEyNiAzMCAtNTkgODYgLTExMCAxMzcgLTEyNCA2NiAtMTggMTM5IC0xMiAxODcgMTUgNDIKMjUgNDMgMjUgNDMgNSAwIC0xOCA2IC0yMCA3NSAtMjAgbDc1IDAgMiAzNjMgMyAzNjIgMjcgLTcwIGMxNCAtMzggNzYgLTIwMAoxMzYgLTM2MCBsMTEwIC0yOTAgOTUgLTMgOTUgLTMgMTMgMzggYzYgMjEgNjggMTg0IDEzNiAzNjMgNjcgMTc4IDEyMyAzMjgKMTIzIDMzMiAwIDEyIC0xNzggMTAgLTE4NSAtMiAtMyAtNSAtNDQgLTExNiAtOTEgLTI0NyAtNDYgLTEzMCAtODcgLTIzOSAtODkKLTI0MSAtNiAtNiAtMTYgMTggLTEwNCAyNjggbC03OSAyMjUgLTE2OSAzIGMtOTMgMSAtMTcyIC0xIC0xNzYgLTR6IG0tODAKLTM2NCBjOCAwIDI4IC0xMyA0NCAtMjkgMjUgLTI1IDI5IC0zNyAyOSAtODQgMCAtNDUgLTUgLTYxIC0yNSAtODUgLTQ4IC01NwotMTQ2IC00NyAtMTc5IDE3IC0zMSA1OSAtMTMgMTQ0IDM2IDE2OCAzNSAxOCA1MiAyMiA2NiAxNyA4IC0yIDIwIC00IDI5IC00egpNNDc5MCA5NDAgbDAgLTcwIC00MCAwIC00MCAwIDAgLTcxIGMwIC00NSA0IC02OCAxMCAtNjQgNiA0IDI0IDQgNDAgMCBsMzAgLTcKMCAtMTI5IGMwIC0xNDggMTAgLTE4MyA2MSAtMjIwIDI3IC0xOSA0OSAtMjUgMTEwIC0yNyA5NyAtNSAxMTEgNiAxMDcgODcgbC0zCjU2IC00MyAtMyBjLTY3IC01IC03MiA0IC03MiAxMjkgbDAgMTA5IDQ1IDEgYzI1IDEgNTEgMiA1OCAzIDggMSAxMiAyMCAxMyA1NgowIDMwIC0xIDYxIC00IDY4IC0zIDcgLTI0IDEyIC01OCAxMiBsLTU0IDAgMCA3MCAwIDcwIC04MCAwIC04MCAwIDAgLTcwegpNMzY5MiA4NjcgYy00OSAtMTUgLTEyMiAtODUgLTE0OCAtMTQyIC0xNyAtMzYgLTI0IC02OCAtMjQgLTExNSAxIC0xMDcgNDkKLTE4OCAxNDIgLTIzNCA0MiAtMjEgNjYgLTI2IDEyNyAtMjYgNzggMCAxMzMgMTggMTc2IDU3IDI0IDIxIDY5IDgzIDY0IDg3IC0yCjIgLTMzIDEzIC02OSAyNSAtNjMgMjEgLTY1IDIxIC04MCAyIC00OCAtNjAgLTE1OCAtNTIgLTE4OCAxNCAtNyAxNCAtMTIgMjgKLTEyIDMwIDAgMyA4MSA1IDE4MCA1IGwxODAgMCAwIDU4IGMwIDEwNiAtNzUgMjEyIC0xNjkgMjQwIC00NiAxNCAtMTM0IDE0Ci0xNzkgLTF6IG0xNDcgLTEzMSBjMTUgLTggMzIgLTI2IDM5IC00MCBsMTIgLTI2IC0xMDUgMCAtMTA1IDAgMTIgMjYgYzIzIDQ5CjkyIDY4IDE0NyA0MHogTTQzMjAgODY5IGMtMTQgLTYgLTM1IC0yMCAtNDcgLTMxIGwtMjMgLTIxIDAgMjYgYzAgMjcgMCAyNwotNzUgMjcgbC03NSAwIDAgLTI1NSAwIC0yNTUgODAgMCA4MCAwIDAgMTUwIDAgMTUwIDI5IDMyIGMyNyAzMCAzNSAzMyA4NiAzMwpsNTYgMCAtMyA3NSAtMyA3NSAtNDAgMiBjLTIyIDEgLTUxIC0yIC02NSAtOHogTTQ0OTAgNjE1IGwwIC0yNTUgODAgMCA4MCAwIDAKMjU1IDAgMjU1IC04MCAwIC04MCAwIDAgLTI1NXogTTUxMTkgODIzIGMxMSAtMjcgNTggLTE0MCAxMDYgLTI1MyA1OSAtMTQyIDg0Ci0yMTIgODAgLTIyOCAtMyAtMTMgLTE3IC0zNSAtMzEgLTQ5IC0yMCAtMjAgLTMzIC0yNCAtNjUgLTIxIGwtMzkgNCAwIC03MyAwCi03MyA2NyAwIGM1MyAwIDc1IDUgMTA5IDI1IDIzIDE0IDUxIDM3IDYyIDUzIDE3IDIzIDI3MiA2NDAgMjcyIDY1NiAwIDMgLTM4CjYgLTg1IDYgLTc5IDAgLTg2IC0yIC05NSAtMjIgLTUgLTEzIC0zMSAtODMgLTU4IC0xNTYgbC00OCAtMTM0IC0zOCAxMDQgYy0yMQo1NiAtNDcgMTI3IC01OCAxNTYgbC0xOSA1MiAtOTAgMCAtODkgMCAxOSAtNDd6Ii8+CjwvZz4KPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMC4wMDAwMDAsMTQyLjAwMDAwMCkgc2NhbGUoMC4xMDAwMDAsLTAuMTAwMDAwKSIgZmlsbD0iI2YxNzQ0ZiI+CjxwYXRoIGQ9Ik04MTcgNzQwIGMtOTAgLTg5IC05MCAtODkgLTEyNCAtNjAgLTE5IDE3IC00MCAzMCAtNDggMzAgLTE5IDAgLTY1Ci00NCAtNjUgLTYxIDAgLTIwIDEzMiAtMTQ5IDE1MSAtMTQ5IDE2IDAgMjU5IDI0MyAyNTkgMjU5IDAgMTQgLTU3IDcxIC03MSA3MQotNyAwIC01MyAtNDAgLTEwMiAtOTB6Ii8+CjwvZz4KPC9zdmc+Cg==" /></div>
+      <h2>What is actually true today.</h2>
+      <div class="cols">
+        <article>
+          <div class="num">THE VERSION</div>
+          <h3>One hash, two signatures.</h3>
+          <p>Change the text, the offer, the locale, or the destination, and both approvals drop. A comment does not approve anything.</p>
+        </article>
+        <article>
+          <div class="num">THE EXAMPLE</div>
+          <h3>The weak claim stayed out.</h3>
+          <p>“Hire verified nurses in 72 hours” did not survive the critic. That pack still cannot be exported. No benefit was invented to fill the form.</p>
+        </article>
+        <article>
+          <div class="num">THE BOUNDARY</div>
+          <h3>No result was inferred.</h3>
+          <p>Public pages only. Keys stay on the server. Metrics wait for consent. We are not reporting impressions, a lift, or a tested Editor import.</p>
+        </article>
+      </div>
+    </div>
+    <div class="foot">
+      <span>Insight · the working page · the real status · agents under human control</span>
+      <span><b>Grona</b> · Lisbon</span>
+    </div>
+  </section>
+</body>
+</html>

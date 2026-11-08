@@ -1,4 +1,5 @@
 import { isReviewPackEnabled } from "../domain/flag";
+import { clientAddress, hstsValue } from "../domain/privacy";
 import type { ApprovalRole } from "../domain/approval";
 import { appDeps, database } from "./deps";
 import {
@@ -7,6 +8,7 @@ import {
   assignRole,
   createPack,
   endSession,
+  eraseActorPacks,
   exportPack,
   grantConsent,
   packView,
@@ -14,7 +16,9 @@ import {
   revisePack,
   signIn,
   tokensMatch,
+  withdrawConsent,
 } from "./service";
+import { actorPacks } from "./privacy-store";
 
 function cookie(header: string | null, name: string): string | null {
   if (!header) return null;
@@ -80,21 +84,29 @@ function json(body: unknown, status = 200, headers: Record<string, string> = {})
 }
 
 export async function handleRequest(request: Request): Promise<Response> {
+  const response = await dispatch(request);
+  const hsts = hstsValue(appDeps().env);
+  if (hsts) response.headers.set("strict-transport-security", hsts);
+  return response;
+}
+
+async function dispatch(request: Request): Promise<Response> {
   const deps = appDeps();
   const url = new URL(request.url);
   const traceId = crypto.randomUUID();
   if (url.pathname === "/api/feature-flags" && request.method === "GET") {
     return json({ review_ready_ad_pack: isReviewPackEnabled(deps.env) });
   }
-  if (!isReviewPackEnabled(deps.env)) {
-    if (url.pathname.startsWith("/api/")) return json({ error: "not_found" }, 404);
+  if (!isReviewPackEnabled(deps.env) && url.pathname.startsWith("/api/") && url.pathname !== "/api/session") {
+    return json({ error: "not_found" }, 404);
   }
   const db = database();
   const session = actorFromSession(db, cookie(request.headers.get("cookie"), "adverity_session"));
 
   if (url.pathname === "/api/session" && request.method === "POST") {
     const body = await fields(request);
-    const signed = signIn(db, body.username || "", body.passphrase || "");
+    const signed = signIn(db, body.username || "", body.passphrase || "", clientAddress(request.headers.get("x-forwarded-for")));
+    if (signed && "limited" in signed) return json({ error: "sign_in_limited" }, 429);
     if (!signed) return json({ error: "sign_in_failed" }, 401);
     const headers = { "set-cookie": sessionCookie(signed.sessionId, secureCookie(deps.env)) };
     if (wantsHtml(request)) return new Response(null, { status: 303, headers: { ...headers, location: "/" } });
@@ -121,9 +133,21 @@ export async function handleRequest(request: Request): Promise<Response> {
   }
 
   if (url.pathname === "/api/consent" && request.method === "POST") {
-    grantConsent(db, session.actorId);
+    const body = await fields(request);
+    if (body.withdraw === "true") withdrawConsent(db, session.actorId);
+    else grantConsent(db, session.actorId);
     if (wantsHtml(request)) return new Response(null, { status: 303, headers: { location: "/" } });
-    return json({ consent: true });
+    return json({ consent: body.withdraw !== "true" });
+  }
+
+  if (url.pathname === "/api/privacy" && request.method === "GET") {
+    return json({ packs: actorPacks(db, session.actorId) });
+  }
+
+  if (url.pathname === "/api/privacy" && request.method === "POST") {
+    const result = eraseActorPacks(db, deps, session.actorId, traceId);
+    if (wantsHtml(request)) return new Response(null, { status: 303, headers: { location: "/" } });
+    return json(result);
   }
 
   if (url.pathname === "/api/packs" && request.method === "POST") {
