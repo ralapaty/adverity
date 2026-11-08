@@ -3,6 +3,7 @@ import type { DatabaseSync } from "node:sqlite";
 import { z } from "zod";
 import { assessAssets } from "../domain/assess";
 import { canRecordApproval, evaluateExport, routeRole, type ApprovalRecord, type ApprovalRole } from "../domain/approval";
+import { buildPmaxHandoff, buildSearchCsv, handoffProblems, IMPORT_NOTE, type KeywordRow } from "../domain/handoff";
 import { runPipeline, type PipelineInput, type PipelineResult } from "../domain/pipeline";
 import { classifyUrl } from "../domain/url-guard";
 import { newId, verifyPassphrase } from "../db/db";
@@ -20,6 +21,11 @@ const createSchema = z.object({
   locale: z.string().min(2),
   destinationUrl: z.string().min(1),
   offerSummary: z.string().min(1),
+  campaignType: z.enum(["search", "performance_max"]).default("search"),
+  campaignName: z.string().default(""),
+  businessName: z.string().default(""),
+  paths: z.array(z.string()).default([]),
+  keywords: z.array(z.object({ text: z.string().min(1), criterion: z.enum(["Exact", "Phrase", "Broad"]) })).default([]),
 });
 
 export type PackInput = z.infer<typeof createSchema>;
@@ -110,6 +116,18 @@ export async function createPack(db: DatabaseSync, deps: AppDeps, actorId: strin
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     ).run(packId, input.advertiser, input.userType, input.audience, input.objective, input.adGroup, input.locale, input.destinationUrl, input.offerSummary, input.productUrl, input.brief, actorId, now);
     db.prepare("INSERT INTO role_assignment (id, pack_id, role, actor_id, can_assess_locale) VALUES (?, ?, 'practitioner', ?, 1)").run(newId("role"), packId, actorId);
+    db.prepare(
+      `INSERT INTO pack_handoff (pack_id, campaign_type, campaign_name, business_name, business_name_verified, paths_json, keywords_json)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    ).run(
+      packId,
+      input.campaignType,
+      input.campaignName || input.advertiser,
+      input.businessName,
+      0,
+      JSON.stringify(input.paths),
+      JSON.stringify(input.keywords),
+    );
     const versionId = insertVersion(db, packId, 1, input, result, Date.now() - started);
     db.exec("COMMIT");
     audit(db, deps, "ad_pack_drafted", {
@@ -221,13 +239,36 @@ function latestVersion(db: DatabaseSync, packId: string) {
     | undefined;
 }
 
+function loadHandoff(db: DatabaseSync, packId: string) {
+  const row = db.prepare("SELECT campaign_type, campaign_name, business_name, business_name_verified, paths_json, keywords_json FROM pack_handoff WHERE pack_id = ?").get(packId) as
+    | {
+        campaign_type: "search" | "performance_max";
+        campaign_name: string;
+        business_name: string;
+        business_name_verified: number;
+        paths_json: string;
+        keywords_json: string;
+      }
+    | undefined;
+  return (
+    row ?? {
+      campaign_type: "search" as const,
+      campaign_name: "",
+      business_name: "",
+      business_name_verified: 0,
+      paths_json: "[]",
+      keywords_json: "[]",
+    }
+  );
+}
+
 export function packView(db: DatabaseSync, packId: string) {
   const pack = db.prepare("SELECT * FROM pack WHERE id = ?").get(packId) as PackRow | undefined;
   if (!pack) return null;
   const version = latestVersion(db, packId);
   if (!version) return null;
   const assets = db.prepare("SELECT * FROM asset WHERE pack_version_id = ? ORDER BY kind, position").all(version.id) as Array<{
-    kind: "headline" | "description";
+    kind: "headline" | "description" | "long_headline";
     position: number;
     text: string;
     angle: string;
@@ -249,6 +290,29 @@ export function packView(db: DatabaseSync, packId: string) {
   const approvals = loadApprovals(db, version.id);
   const route = routeRole(pack.user_type);
   const unconfirmed = assets.some((asset) => JSON.parse(asset.flags_json).includes("unconfirmed_offer"));
+  const handoff = loadHandoff(db, packId);
+  const handoffAssets = assets.map((asset) => ({
+    kind: asset.kind,
+    text: asset.text,
+    flags: JSON.parse(asset.flags_json) as string[],
+    evidenceIds: JSON.parse(asset.evidence_ids_json) as string[],
+  }));
+  const problems = handoffProblems({
+    campaignType: handoff.campaign_type,
+    adGroup: pack.ad_group,
+    destinationUrl: pack.destination_url,
+    paths: JSON.parse(handoff.paths_json) as string[],
+    businessName: handoff.business_name,
+    assets: handoffAssets,
+  });
+  if (handoff.campaign_type === "performance_max" && handoff.business_name_verified !== 1) {
+    problems.push("Business-name identity verification is still required.");
+  }
+  const keywords = JSON.parse(handoff.keywords_json) as KeywordRow[];
+  const limitations = JSON.parse(version.limitations_json) as string[];
+  if (keywords.some((row) => row.criterion === "Broad")) {
+    limitations.push("Broad match is flagged for review because bidding context is unknown.");
+  }
   const decision = evaluateExport({
     validationPassed: version.validation_passed === 1,
     contentHash: version.content_hash ?? "",
@@ -258,6 +322,7 @@ export function packView(db: DatabaseSync, packId: string) {
     approvals,
     offerConfirmed: !unconfirmed || pack.offer_confirmed === 1,
     destinationConfirmed: pack.destination_confirmed === 1,
+    handoffReady: problems.length === 0,
   });
   const approved = (role: string) => approvals.some((row) => row.role === role && row.contentHash === version.content_hash);
   let status = version.status;
@@ -309,7 +374,8 @@ export function packView(db: DatabaseSync, packId: string) {
       issue: entry.issue,
       after: entry.afterText,
     })),
-    limitations: JSON.parse(version.limitations_json) as string[],
+    limitations: [...limitations, ...problems],
+    campaign_type: handoff.campaign_type,
     assignments: assignments.map((row) => ({
       role: row.role,
       actor_id: row.actor_id,
@@ -379,7 +445,7 @@ export function recordApproval(
   actorId: string,
   packId: string,
   role: ApprovalRole,
-  confirms: { offer: boolean; destination: boolean },
+  confirms: { offer: boolean; destination: boolean; businessName?: boolean },
   traceId: string,
 ) {
   const pack = db.prepare("SELECT * FROM pack WHERE id = ?").get(packId) as PackRow | undefined;
@@ -407,6 +473,10 @@ export function recordApproval(
       return { ok: false as const, status: 400, reason: "confirmation_required" };
     }
     db.prepare("UPDATE pack SET offer_confirmed = ?, destination_confirmed = ? WHERE id = ?").run(confirms.offer ? 1 : 0, 1, packId);
+    const handoff = loadHandoff(db, packId);
+    if (handoff.campaign_type === "performance_max" && confirms.businessName) {
+      db.prepare("UPDATE pack_handoff SET business_name_verified = 1 WHERE pack_id = ?").run(packId);
+    }
   }
   db.prepare(
     "INSERT INTO approval (id, pack_version_id, role, actor_id, decision, content_hash, created_at) VALUES (?, ?, ?, ?, 'approved', ?, ?)",
@@ -434,11 +504,13 @@ export async function revisePack(
   }
   const locale = change.locale || pack.locale;
   const offerSummary = change.offerSummary || pack.offer_summary;
-  const currentAssets = db.prepare("SELECT kind, position, text, angle, evidence_ids_json FROM asset WHERE pack_version_id = ?").all(version.id) as Array<{
-    kind: "headline" | "description";
+  const handoff = loadHandoff(db, packId);
+  const currentAssets = db.prepare("SELECT kind, position, text, angle, flags_json, evidence_ids_json FROM asset WHERE pack_version_id = ?").all(version.id) as Array<{
+    kind: "headline" | "description" | "long_headline";
     position: number;
     text: string;
     angle: string;
+    flags_json: string;
     evidence_ids_json: string;
   }>;
   const edited = currentAssets.map((asset) => ({
@@ -448,7 +520,12 @@ export async function revisePack(
     angle: asset.angle,
     evidenceIds: JSON.parse(asset.evidence_ids_json) as string[],
   }));
-  const assessed = assessAssets(edited, { locale, destinationUrl, offerSummary });
+  const assessed = assessAssets(edited, { locale, destinationUrl, offerSummary, campaignType: handoff.campaign_type });
+  for (const asset of assessed.assets) {
+    const prior = currentAssets.find((row) => row.kind === asset.kind && row.position === asset.position);
+    const roles = prior ? (JSON.parse(prior.flags_json) as string[]).filter((flag) => flag.startsWith("role:")) : [];
+    asset.flags.push(...roles);
+  }
   const expert = db.prepare("SELECT can_assess_locale FROM role_assignment WHERE pack_id = ? AND role = 'copy_expert'").get(packId) as
     | { can_assess_locale: number }
     | undefined;
@@ -479,6 +556,7 @@ export async function revisePack(
       offerSummary,
       packId,
     );
+    db.prepare("UPDATE pack_handoff SET business_name_verified = 0 WHERE pack_id = ?").run(packId);
     insertVersion(db, packId, version.version_number + 1, { locale }, result, 0);
     db.exec("COMMIT");
   } catch (error) {
@@ -487,11 +565,6 @@ export async function revisePack(
   }
   audit(db, deps, "version_revised", { traceId, packId, actorId, detail: { cleared_approvals: true } });
   return { ok: true as const };
-}
-
-function csvCell(value: string): string {
-  const safe = /^[=+\-@]/.test(value) ? `'${value}` : value;
-  return `"${safe.replaceAll('"', '""')}"`;
 }
 
 export function exportPack(db: DatabaseSync, deps: AppDeps, actorId: string, packId: string, traceId: string) {
@@ -518,21 +591,28 @@ export function exportPack(db: DatabaseSync, deps: AppDeps, actorId: string, pac
   );
   audit(db, deps, "export_attempt", { traceId, packId, versionId: version.id, actorId, detail: { allowed, reason: allowed ? "ready" : view.status } });
   if (!allowed) return { ok: false as const, status: 409, reason: "export_blocked" };
-  const lines = ["# Human-review extract. Not a tested Google Ads Editor import.", "campaign,ad_group,locale,headline,description,final_url,review_version"];
-  for (const asset of market.assets) {
-    lines.push(
-      [
-        csvCell(pack.ad_group),
-        csvCell(pack.ad_group),
-        csvCell(pack.locale),
-        csvCell(asset.kind === "headline" ? asset.text : ""),
-        csvCell(asset.kind === "description" ? asset.text : ""),
-        csvCell(pack.destination_url),
-        csvCell(String(market.version_number)),
-      ].join(","),
-    );
+  const handoff = loadHandoff(db, packId);
+  const paths = JSON.parse(handoff.paths_json) as string[];
+  const keywords = JSON.parse(handoff.keywords_json) as KeywordRow[];
+  const byKind = (kind: string) => market.assets.filter((asset) => asset.kind === kind).map((asset) => asset.text);
+  if (handoff.campaign_type === "performance_max") {
+    return {
+      ok: true as const,
+      campaignType: "performance_max" as const,
+      note: "Editor import compatibility not verified.",
+      body: buildPmaxHandoff({ headlines: byKind("headline"), longHeadlines: byKind("long_headline"), descriptions: byKind("description"), themes: keywords.map((row) => row.text) }),
+    };
   }
-  return { ok: true as const, body: lines.join("\n") };
+  const body = buildSearchCsv({
+    campaign: handoff.campaign_name || view.advertiser,
+    adGroup: pack.ad_group,
+    finalUrl: pack.destination_url,
+    paths: [paths[0] ?? "", paths[1] ?? ""],
+    headlines: byKind("headline"),
+    descriptions: byKind("description"),
+    keywords,
+  });
+  return { ok: true as const, campaignType: "search" as const, note: IMPORT_NOTE, body };
 }
 
 export function grantConsent(db: DatabaseSync, actorId: string): void {

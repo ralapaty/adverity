@@ -105,6 +105,9 @@ export default async function PackPage({ params }: { params: Promise<{ id: strin
             <>
               <label className="inline" htmlFor="confirmDestination"><input id="confirmDestination" name="confirmDestination" type="checkbox" value="true" /> I confirm the destination</label>
               <label className="inline" htmlFor="confirmOffer"><input id="confirmOffer" name="confirmOffer" type="checkbox" value="true" /> I confirm the offer, including any design-partner invitation</label>
+              {pack.campaign_type === "performance_max" ? (
+                <label className="inline" htmlFor="confirmBusinessName"><input id="confirmBusinessName" name="confirmBusinessName" type="checkbox" value="true" /> I confirm this business name was identity-checked outside AdVerity</label>
+              ) : null}
             </>
           ) : null}
           <button type="submit">Approve exact version</button>
@@ -117,7 +120,7 @@ export default async function PackPage({ params }: { params: Promise<{ id: strin
         <textarea id="comment" name="body" required />
         <button type="submit">Add comment</button>
       </form>
-      {market.export_eligible ? <p><a href={`/api/packs/${id}/export`}>Download review extract</a></p> : <p>Download stays unavailable until this version is approved.</p>}
+      {market.export_eligible ? <p><a href={`/api/packs/${id}/export`}>Download review extract</a> Import has not been tested.</p> : <p>Download stays unavailable until this version is approved and the handoff checks pass.</p>}
       <form method="post" action="/api/sign-out">
         <input type="hidden" name="csrf" value={session.csrf} />
         <button type="submit">Sign out</button>

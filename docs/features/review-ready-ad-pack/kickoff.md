@@ -33,6 +33,22 @@ No Zoho Projects MCP namespace is connected in this session. Task creation and s
 
 Known dependencies block a live model run and a production flag enablement. They do not block review of this design. Until sign-off, implementation stays unstarted.
 
+## Delta kickoff — Render and the revised prompt
+
+spec-to-ship: render and revised master prompt
+ticket: none — Zoho Projects is still not connected. Vaiz was not used.
+branch: `feat/render-revised-prompt`
+date: 8 November 2026
+
+The source brief for this delta is `docs/brief/AdVerity-Strategy-and-Revised-Master-Prompt.md`, with `AdVerity_Logo.svg` beside it. The running pack on `main` stays the regression baseline. Flag off remains N0b.
+
+| Check | State |
+|---|---|
+| What changed | Render is the host. The prompt adds Search CSV shape, paths, keywords, headline roles, and a Performance Max text pack |
+| Acceptance criteria | R24–R33, still behind `FEATURE_REVIEW_READY_AD_PACK` |
+| Host | Render web service, one instance, disk `/var/data`. ADR 007, status proposed |
+| Design sign-off | **Approved 2026-11-08** to implement R24–R33. Zoho Projects was not moved: no Zoho namespace is connected |
+
 ## Scope of this feature
 
 One advertiser, one ad group, one locale (`en-GB`): turn a product URL, a short brief, and supplied keyword context into an evidence-grounded Google Search responsive-search-ad pack, then hold export until a copy expert and the route approver have signed the exact version.

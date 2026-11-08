@@ -8,5 +8,6 @@ Short card. The operator procedure is [../../ops/review-ready-ad-pack-devsecops-
 - Check: `GET /api/feature-flags` returns `{ "review_ready_ad_pack": false }`.
 - Holding page has no **Generate a review-ready ad pack** control.
 - `POST /api/packs` returns 404 and writes no pack.
-- Database file: `ADVERITY_DB`. Keep it with the process. Do not commit it.
+- Host: the Render service in `render.yaml`. One instance. Disk mount `/var/data`.
+- Database file: `ADVERITY_DB`, which is `/var/data/adverity.sqlite` on Render. Do not commit it.
 - Model key: `MODEL_API_KEY` on the server only.

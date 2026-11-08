@@ -29,6 +29,7 @@ Residual risk accepted for the pilot, and not accepted for a public multi-tenant
 - DNS rebinding is narrowed by a second lookup immediately before fetch (T5, T8). The TCP connection still uses the hostname, so the check and the connect can disagree. Pinning the connect to the checked address is not implemented.
 - IPv6 literals other than IPv4-mapped addresses are refused, including public IPv6 hosts.
 - A critic failure returns `model_unavailable` and stores no assets. The draft is discarded on purpose.
+- The Render disk at `/var/data` holds briefs and approvals. A disk snapshot is the same personal data as the SQLite file. ADR 007.
 
 ## Abuse cases the golden set must include
 

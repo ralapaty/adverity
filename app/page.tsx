@@ -80,8 +80,19 @@ function Workspace({ csrf, actor }: { csrf: string; actor: string }) {
         <input id="audience" name="audience" required defaultValue="Healthcare staffing-agency owners" />
         <label htmlFor="objective">Objective</label>
         <input id="objective" name="objective" required defaultValue="Platform discovery" />
-        <label htmlFor="adGroup">Ad group</label>
-        <input id="adGroup" name="adGroup" required defaultValue="healthcare recruitment software" />
+        <label htmlFor="campaignType">Campaign type</label>
+        <select id="campaignType" name="campaignType" defaultValue="search">
+          <option value="search">Search</option>
+          <option value="performance_max">Performance Max text handoff</option>
+        </select>
+        <label htmlFor="adGroup">Ad group (30 characters or fewer)</label>
+        <input id="adGroup" name="adGroup" required maxLength={30} defaultValue="Healthcare hiring tools" />
+        <label htmlFor="paths">Two paths, comma separated</label>
+        <input id="paths" name="paths" defaultValue="hiring-tools,next-step" />
+        <label htmlFor="keywords">Keyword candidates, as text|Phrase separated by semicolons</label>
+        <input id="keywords" name="keywords" defaultValue="" />
+        <label htmlFor="businessName">Business name for Performance Max</label>
+        <input id="businessName" name="businessName" defaultValue="HealthCrew AI" />
         <label htmlFor="keywordThemes">Keyword themes</label>
         <input id="keywordThemes" name="keywordThemes" required defaultValue="healthcare recruitment software; healthcare staffing software" />
         <label htmlFor="locale">Locale</label>

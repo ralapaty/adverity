@@ -1,7 +1,7 @@
 # Review-ready ad pack — DevSecOps Playbook
 
 > **Audience:** the engineer operating the AdVerity pilot.
-> **Stack:** one Node process running Next.js. Staging and production hosts are not provisioned in this repository. The skill's target split is Hetzner for staging and Hostinger for production; use those names only after the hosts exist.
+> **Stack:** one Node process running Next.js on Render. Blueprint: `render.yaml`. SQLite file: `/var/data/adverity.sqlite` on the persistent disk. The service stays at one instance. Hostinger and Hetzner are not this project's hosts.
 > **Feature:** review-ready Google Search ad pack (`FEATURE_REVIEW_READY_AD_PACK`, default **off**).
 > **Companion docs:** [`../features/review-ready-ad-pack/`](../features/review-ready-ad-pack/) · [`production-environment.md`](./production-environment.md) · [`../features/review-ready-ad-pack/release-notes.md`](../features/review-ready-ad-pack/release-notes.md)
 >
@@ -38,7 +38,7 @@ Flag on: a signed-in practitioner can generate one pack. Export stays closed unt
 |---|---|---|
 | `FEATURE_REVIEW_READY_AD_PACK` | Server env | Exactly `true` enables. Anything else is off. Not `NEXT_PUBLIC_`. |
 | `ADVERITY_PILOT_PASSPHRASE` | Server env | Seeds the five pilot users on an empty database. |
-| `ADVERITY_DB` | Server env | SQLite file. Not in git. |
+| `ADVERITY_DB` | Server env | On Render: `/var/data/adverity.sqlite`. Not in git. |
 | `MODEL_ENDPOINT`, `MODEL_API_KEY`, `MODEL_ID` | Server env | Used when `MODEL_ADAPTER` is not `fixture`. |
 | `MODEL_ADAPTER` | Server env | `fixture` for a local deterministic run. |
 | `EVIDENCE_MODE` | Server env | `fixture` skips the network for `healthcrew.ai` after the URL guard. |
@@ -49,7 +49,7 @@ Flag on: a signed-in practitioner can generate one pack. Export stays closed unt
 
 Goal: the flag is on for the staging process only.
 
-Commands: set `FEATURE_REVIEW_READY_AD_PACK=true` in the staging process environment, with a unique passphrase and a database path on that machine. Reload the process if the host injects variables only at start.
+Commands: in the Render dashboard for the staging service, set `FEATURE_REVIEW_READY_AD_PACK` to `true`, set a unique `ADVERITY_PILOT_PASSPHRASE`, and keep `ADVERITY_DB` at `/var/data/adverity.sqlite`. Save the environment. Render restarts that build. Do not start a second instance.
 
 Verify:
 
@@ -63,7 +63,7 @@ Expect `{ "review_ready_ad_pack": true }`. Sign in and generate the illustrative
 
 Goal: the same flag, on the production process, after staging verify passed.
 
-Commands: set the variable on the production host. Do not copy the staging database. Use a new passphrase.
+Commands: set `FEATURE_REVIEW_READY_AD_PACK` to `true` on the production Render service. Do not copy the staging disk. Use a new passphrase. Confirm the disk is mounted at `/var/data` before the first sign-in, or the restart will create an empty database and the passphrase will seed it.
 
 Verify: the same curl against the production origin, then a holding-page check that the wordmark and the three questions render. Confirm the session cookie has `Secure` on HTTPS.
 

@@ -52,6 +52,7 @@ export function evaluateExport(input: {
   approvals: ApprovalRecord[];
   offerConfirmed: boolean;
   destinationConfirmed: boolean;
+  handoffReady?: boolean;
 }): { eligible: boolean; independentReview: boolean; reason: string } {
   const independentReview = !input.rolesOverlap;
   if (!input.validationPassed) return { eligible: false, independentReview, reason: "validation_failed" };
@@ -64,5 +65,6 @@ export function evaluateExport(input: {
   if (input.languageReviewRequired && !matches("language_reviewer")) {
     return { eligible: false, independentReview, reason: "language_review_pending" };
   }
+  if (input.handoffReady === false) return { eligible: false, independentReview, reason: "handoff_blocked" };
   return { eligible: true, independentReview, reason: "ready" };
 }

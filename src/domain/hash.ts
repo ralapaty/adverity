@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 
 export type HashAsset = {
-  kind: "headline" | "description";
+  kind: "headline" | "description" | "long_headline";
   position: number;
   text: string;
   angle: string;

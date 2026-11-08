@@ -127,3 +127,31 @@ These counts are for the exact ASCII strings in the 8 November 2026 brief. They 
 | Help shape healthcare recruitment tools. Contact HealthCrew AI to discuss your needs. | description | 85 |
 
 Critic fixture, not an approved asset: "Hire Verified Nurses in 72 Hrs." The expected issue is an implied verification and a hiring outcome that the illustration has not substantiated, plus a blur between software and a staffing service. The expected revision direction is a platform description such as "Healthcare Hiring Platform", with expert review and both approvals left pending.
+
+## Delta — revised master prompt, 8 November 2026
+
+Source: `docs/brief/AdVerity-Strategy-and-Revised-Master-Prompt.md`. R1–R23 stay in force. These requirements add campaign shape and the Search handoff. They do not authorise publishing or spend.
+
+- R24. When `campaign_type` is omitted or `search`, the service shall keep one responsive search ad of 15 headlines and 4 descriptions. When `campaign_type` is `performance_max`, the service shall request 15 headlines, 5 long headlines, and 5 descriptions, and shall not place those fields in the Search CSV.
+- R25. The service shall label each headline with one role: outcome, problem, benefit, solution, mechanism, difference, proof, or action. It shall target at least six headlines whose role is outcome, problem, or benefit. If supported copy cannot reach six, the pack shall stay `incomplete`. The service shall not invent a benefit to fill the count.
+- R26. The service shall attach two paths to a group. Each path shall be at most 15 Google-counted characters, shall contain no slash and no space, and shall use hyphens inside a token. A missing truthful next step shall be returned as `needs_input` rather than a made-up path.
+- R27. For a Search pack the service shall store 10 to 20 distinct keyword candidates when the evidence supports them, and fewer when it does not. Review JSON may show `[exact]`, `"phrase"`, or broad. The service shall not pad the list to the quota and shall not treat the themes as volume findings.
+- R28. When a Search pack is export-eligible, the CSV shall use the 29-column header in the revised prompt, every row shall have 29 fields, pinning columns shall be empty unless pinning was explicitly stored, and the file shall contain no counts and no comment row. The response outside the file shall say the import has not been tested. The service shall not say the file is import-tested.
+- R29. A Search ad row shall set Ad type to `Responsive search ad` and shall leave Keyword and Criterion Type empty. A keyword row shall set only Campaign, Ad group, Keyword, and Criterion Type. Keyword text in the CSV shall be plain, without match notation. Criterion Type shall be `Exact`, `Phrase`, or `Broad`.
+- R30. If the destination URL is absent, the service shall not invent one and shall not emit an export-eligible Search CSV.
+- R31. For Performance Max, the service shall include at least one headline of 15 characters or fewer and one description of 60 characters or fewer when supported copy exists, shall keep long headlines at 90 or fewer, and shall store 10 to 25 search-theme candidates only when supported. Business name shall be at most 25 characters and shall be flagged until identity verification is stored. Without a verified PMax Editor schema, any PMax file shall be labelled `Draft asset handoff — Editor import compatibility not verified.`
+- R32. The validator shall reject the generic phrases named in the revised prompt, a group name over 30 characters, and a proof headline that has no evidence id. Failure shall block approved export.
+- R33. While the flag is off, R24–R32 shall not run. Flag-off behaviour in N0b stays the regression baseline. Existing Search packs without `campaign_type` shall be read as Search.
+
+The HealthCrew illustrative headlines remain the count fixtures. They are not asserted to contain six outcome, problem, or benefit lines. A copy expert revises that pack. The application shall not rewrite them into unsupported benefits to meet R25.
+
+## Traceability for the delta
+
+| Req | Planned test |
+|---|---|
+| R24, R31 | unit: Search shape unchanged when type is omitted; PMax fields stay out of the Search CSV |
+| R25, R32 | unit: shortfall stays incomplete; generic phrase and proof-without-evidence fail validation |
+| R26, R30 | unit: path length and character rules; missing destination does not invent a URL |
+| R27, R29 | unit: keyword notation stripped in CSV; row width 29 |
+| R28 | integration: eligible Search export matches the header and carries the not-import-tested label outside the file |
+| R33, N0b | integration: flag off still 404s `POST /api/packs` |

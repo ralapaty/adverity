@@ -44,8 +44,6 @@ test("a practitioner, copy expert, and client approve one exact version", async 
   await page.getByLabel("I confirm the destination").check();
   await page.getByLabel("I confirm the offer, including any design-partner invitation").check();
   await page.getByRole("button", { name: "Approve exact version" }).click();
-  await expect(page.getByRole("link", { name: "Download review extract" })).toBeVisible();
-  const download = await page.request.get(new URL(`/api/packs/${packUrl.split("/").pop()}/export`, page.url()).toString());
-  expect(download.status()).toBe(200);
-  expect(await download.text()).toContain("Not a tested Google Ads Editor import");
+  await expect(page.getByRole("link", { name: "Download review extract" })).toHaveCount(0);
+  await expect(page.getByText(/six headlines/)).toBeVisible();
 });
