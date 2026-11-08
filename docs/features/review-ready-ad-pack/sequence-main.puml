@@ -1,0 +1,45 @@
+@startuml sequence-main
+title AdVerity review-ready ad pack — Main flow
+footer CONFIDENTIAL — Internal use only · (c) HARA Solutions Limited & HealthCrew.ai
+
+actor Practitioner
+actor "Copy expert" as Expert
+actor Approver
+participant "Web workspace" as UI
+participant "Ad Pack service" as API
+participant "UrlGuard" as Guard
+database "SQLite" as DB
+participant "Model adapter" as Model
+participant "ELK" as LOG
+
+Practitioner -> UI: submit URL, brief, route, keywords, locale
+UI -> API: POST /api/packs
+API -> API: flag is true, session actor is the practitioner
+API -> Guard: check URL
+Guard --> API: public HTTP(S)
+API -> DB: insert pack, evidence excerpts, role rows
+API -> Model: draft (playbook as data, page as data)
+Model --> API: schema-valid assets
+API -> Model: criticise
+Model --> API: before / issue / after
+API -> Model: one repair at most
+API -> API: GoogleCounter on every asset
+API -> DB: insert immutable version, assets, critique, validation result
+API -> LOG: ad_pack_drafted {trace_id, version_id, validator_pass, elapsed_ms}
+API --> UI: JSON pack, status draft or ready_for_review
+
+Expert -> UI: review this version
+UI -> API: POST /api/packs/:id/approvals {role: copy_expert}
+API -> DB: approval row bound to content_hash
+API -> LOG: approval_recorded
+
+Approver -> UI: approve the same version
+UI -> API: POST /api/packs/:id/approvals {role: route approver}
+API -> DB: approval row for the same content_hash
+API --> UI: export_eligible true
+
+Approver -> UI: download review extract
+UI -> API: GET /api/packs/:id/export
+API -> DB: recompute eligibility
+API --> UI: CSV labelled review extract
+@enduml

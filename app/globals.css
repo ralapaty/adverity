@@ -1,0 +1,65 @@
+:root {
+  color-scheme: light;
+  --ink: #142226;
+  --teal: #0a5a5d;
+  --paper: #f4fbfb;
+  --card: #ffffff;
+  --line: #c5d5d5;
+  --coral: #f1744f;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: "Iowan Old Style", Palatino, "Palatino Linotype", Georgia, serif;
+  color: var(--ink);
+  background: var(--paper);
+  line-height: 1.5;
+}
+.skip {
+  position: absolute;
+  left: 0.5rem;
+  top: -3rem;
+  background: var(--teal);
+  color: #fff;
+  padding: 0.4rem 0.7rem;
+}
+.skip:focus { top: 0.5rem; }
+.banner, main, footer { width: min(960px, calc(100% - 2rem)); margin: 0 auto; }
+.banner { padding: 1.5rem 0 0.5rem; border-bottom: 4px solid var(--coral); }
+.logo { display: block; width: min(290px, 78vw); height: auto; margin: 0 0 0.35rem; }
+h1, h2 { color: var(--teal); line-height: 1.2; }
+main { padding: 1.5rem 0 3rem; }
+footer { padding-bottom: 2rem; color: #334145; font-size: 0.9rem; }
+form, .card { background: var(--card); border: 1px solid var(--line); padding: 1rem; margin: 1rem 0; }
+label { display: block; font-weight: 700; margin-top: 0.8rem; }
+input, textarea, select {
+  width: 100%;
+  margin-top: 0.25rem;
+  padding: 0.5rem;
+  border: 1px solid #5d7171;
+  border-radius: 4px;
+  font: inherit;
+  background: #fff;
+}
+textarea { min-height: 6rem; }
+button, .button {
+  display: inline-block;
+  margin-top: 1rem;
+  background: var(--teal);
+  color: #fff;
+  border: 0;
+  border-radius: 4px;
+  padding: 0.6rem 0.9rem;
+  font: inherit;
+  text-decoration: none;
+}
+button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible {
+  outline: 3px solid var(--coral);
+  outline-offset: 2px;
+}
+table { width: 100%; border-collapse: collapse; }
+th, td { text-align: left; border-bottom: 1px solid var(--line); padding: 0.4rem; vertical-align: top; }
+.status { background: #fff6f4; border-left: 4px solid var(--coral); padding: 0.6rem 0.8rem; }
+.inline { display: flex; gap: 0.5rem; align-items: center; }
+.inline input { width: auto; }

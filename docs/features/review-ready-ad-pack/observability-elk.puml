@@ -1,0 +1,15 @@
+@startuml elk
+title AdVerity review-ready ad pack — Telemetry pipeline
+footer CONFIDENTIAL — Internal use only · (c) HARA Solutions Limited & HealthCrew.ai
+
+rectangle "Ad Pack service\n(pino JSON)" as APP
+rectangle "Filebeat" as BEATS
+rectangle "Logstash\n(drop bodies, hash ids)" as LS
+database "Elasticsearch\nindex: adverity-review-ready-ad-pack-*" as ES
+rectangle "Kibana\n(dashboards, alerts)" as KB
+
+APP --> BEATS : security audit always\nproduct metrics after consent
+BEATS --> LS : ship
+LS --> ES : index
+ES --> KB : query
+@enduml

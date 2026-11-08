@@ -1,0 +1,27 @@
+@startuml c4-context
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+title AdVerity review-ready ad pack — System Context
+
+Person(freelancer, "Freelance practitioner", "User-acquisition manager or Google Ads subject-matter expert, working for a client")
+Person(inhouse, "In-house practitioner", "Google Ads subject-matter expert at the advertiser")
+Person(expert, "Copy expert", "Reviews the creative. Overlap with the practitioner is stored, and is not called independent")
+Person(client, "External client approver", "Freelance route. Approves facts, offer, and the exact version")
+Person(owner, "Internal business owner", "In-house route. Authorised product, brand, or business owner")
+
+System(adverity, "AdVerity", "Drafts evidence-grounded Google Search ads, records critique, and gates export on human approval of the exact version")
+
+System_Ext(site, "Advertiser public site", "Untrusted source of product evidence")
+System_Ext(model, "Pinned model endpoint", "Already-working multilingual inference. Hosted, not local-only")
+System_Ext(elk, "ELK", "Security audit and consent-gated product telemetry")
+
+Rel(freelancer, adverity, "Submits a brief and prepares a pack", "HTTPS")
+Rel(inhouse, adverity, "Submits a brief and prepares a pack", "HTTPS")
+Rel(expert, adverity, "Reviews the exact version", "HTTPS")
+Rel(client, adverity, "Approves or withholds the exact version", "HTTPS")
+Rel(owner, adverity, "Approves or withholds the exact version", "HTTPS")
+Rel(adverity, site, "Fetches public pages through the URL guard", "HTTP/HTTPS")
+Rel(adverity, model, "Draft, critique, one bounded repair", "HTTPS, server-side key")
+Rel(adverity, elk, "Ships minimised structured logs", "Beats / agent")
+
+footer CONFIDENTIAL — Internal use only · (c) HARA Solutions Limited & HealthCrew.ai
+@enduml

@@ -1,0 +1,28 @@
+@startuml c4-component
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+title AdVerity review-ready ad pack — Components
+
+Container_Boundary(api, "Ad Pack service") {
+  Component(flag, "FlagGate", "server env", "FEATURE_REVIEW_READY_AD_PACK must be true")
+  Component(http, "PackRoutes", "route handlers", "Create, read, comment, approve, revise, export")
+  Component(orch, "Pipeline", "domain", "Evidence, playbook, draft, critic, revise, validate")
+  Component(guard, "UrlGuard", "domain", "Scheme, DNS, redirect hops, size, time")
+  Component(play, "PlaybookStore", "domain", "Immutable playbook version, records as data")
+  Component(adapt, "ModelAdapter", "port", "draft, criticise, repair. Mockable")
+  Component(count, "GoogleCounter", "domain", "Deterministic 30 and 90 checks")
+  Component(approve, "ApprovalService", "domain", "Exact-version gates, overlap, export eligibility")
+  Component(log, "AuditLog", "pino", "Minimised events to ELK")
+}
+
+Rel(http, flag, "refuses when off")
+Rel(http, orch, "starts a draft")
+Rel(orch, guard, "checks every URL and hop")
+Rel(orch, play, "loads one playbook version")
+Rel(orch, adapt, "drafts and critiques")
+Rel(orch, count, "counts and accepts or rejects")
+Rel(http, approve, "comments, approvals, export")
+Rel(http, log, "emits audit events")
+Rel(orch, log, "emits pipeline events")
+
+footer CONFIDENTIAL — Internal use only · (c) HARA Solutions Limited & HealthCrew.ai
+@enduml

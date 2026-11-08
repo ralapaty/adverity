@@ -1,0 +1,164 @@
+@startuml er
+!theme plain
+hide circle
+skinparam linetype ortho
+title AdVerity review-ready ad pack — Review store
+footer CONFIDENTIAL — Internal use only · (c) HARA Solutions Limited & HealthCrew.ai
+
+entity pack {
+  * id : text <<PK>>
+  --
+  * advertiser : text
+  * user_type : text
+  * audience : text
+  * objective : text
+  * ad_group : text
+  * locale : text
+  * destination_url : text
+  * offer_summary : text
+  * created_by : text
+  * created_at : text
+}
+
+entity pack_version {
+  * id : text <<PK>>
+  --
+  * pack_id : text <<FK>>
+  * version_number : int
+  * content_hash : text
+  * playbook_version_id : text <<FK>>
+  parent_version_id : text
+  * validation_passed : int
+  * incomplete : int
+  * language_review_required : int
+  * adapter_id : text
+  * model_id : text
+  * created_at : text
+}
+
+entity asset {
+  * id : text <<PK>>
+  --
+  * pack_version_id : text <<FK>>
+  * kind : text
+  * position : int
+  * text : text
+  * angle : text
+  google_count : int
+  * flags_json : text
+}
+
+entity evidence_excerpt {
+  * id : text <<PK>>
+  --
+  * pack_id : text <<FK>>
+  * source_url : text
+  * retrieved_at : text
+  * excerpt : text
+  * content_hash : text
+  * label : text
+}
+
+entity asset_evidence {
+  * asset_id : text <<FK>>
+  * evidence_id : text <<FK>>
+}
+
+entity intent_theme {
+  * id : text <<PK>>
+  --
+  * pack_version_id : text <<FK>>
+  * keyword_theme : text
+  * intent_label : text
+  * researched : int
+}
+
+entity critique_entry {
+  * id : text <<PK>>
+  --
+  * pack_version_id : text <<FK>>
+  * before_text : text
+  * issue : text
+  * after_text : text
+}
+
+entity role_assignment {
+  * id : text <<PK>>
+  --
+  * pack_id : text <<FK>>
+  * role : text
+  * actor_id : text
+  * roles_overlap : int
+}
+
+entity approval {
+  * id : text <<PK>>
+  --
+  * pack_version_id : text <<FK>>
+  * role : text
+  * actor_id : text
+  * decision : text
+  * content_hash : text
+  * created_at : text
+}
+
+entity comment {
+  * id : text <<PK>>
+  --
+  * pack_version_id : text <<FK>>
+  * author_id : text
+  * body : text
+  * created_at : text
+}
+
+entity playbook_version {
+  * id : text <<PK>>
+  --
+  * version_label : text
+  * locale : text
+  * created_at : text
+}
+
+entity playbook_record {
+  * id : text <<PK>>
+  --
+  * playbook_version_id : text <<FK>>
+  * kind : text
+  * body : text
+}
+
+entity audit_event {
+  * id : text <<PK>>
+  --
+  * trace_id : text
+  * event : text
+  pack_id : text
+  version_id : text
+  actor_id : text
+  * created_at : text
+}
+
+entity export_attempt {
+  * id : text <<PK>>
+  --
+  * pack_version_id : text <<FK>>
+  * actor_id : text
+  * allowed : int
+  * reason : text
+  * created_at : text
+}
+
+pack ||--o{ pack_version
+pack ||--o{ evidence_excerpt
+pack ||--o{ role_assignment
+pack_version ||--o{ asset
+pack_version ||--o{ intent_theme
+pack_version ||--o{ critique_entry
+pack_version ||--o{ approval
+pack_version ||--o{ comment
+pack_version ||--o{ export_attempt
+pack_version }o--|| playbook_version
+playbook_version ||--o{ playbook_record
+asset ||--o{ asset_evidence
+evidence_excerpt ||--o{ asset_evidence
+@enduml

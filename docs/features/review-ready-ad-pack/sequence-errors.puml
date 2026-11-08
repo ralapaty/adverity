@@ -1,0 +1,45 @@
+@startuml sequence-errors
+title AdVerity review-ready ad pack — Refusal and reset flows
+footer CONFIDENTIAL — Internal use only · (c) HARA Solutions Limited & HealthCrew.ai
+
+actor Practitioner
+participant "Ad Pack service" as API
+participant "UrlGuard" as Guard
+database "SQLite" as DB
+participant "Model adapter" as Model
+
+== Flag off ==
+Practitioner -> API: POST /api/packs
+API --> Practitioner: unavailable, no fetch, no model, no insert
+
+== Private or metadata URL ==
+Practitioner -> API: POST /api/packs {url}
+API -> Guard: resolve and classify
+Guard --> API: refuse
+API -> DB: pack needs_input, no body stored
+API --> Practitioner: needs_input
+
+== Model timeout or bad schema ==
+API -> Model: draft
+Model --> API: timeout or non-conforming JSON
+API -> DB: status model_unavailable, no invented assets
+API --> Practitioner: model_unavailable
+
+== Validation failure ==
+API -> API: google_count over 30 or 90
+API -> DB: validation_passed false, full text kept
+API --> Practitioner: draft preview, export refused
+
+== Comment, then an edit ==
+Practitioner -> API: POST comment
+API -> DB: comment row, approvals unchanged
+Practitioner -> API: POST revision (text, offer, locale, or destination)
+API -> DB: new version, both approvals absent
+API --> Practitioner: export_eligible false
+
+== Approval without the required person ==
+Practitioner -> API: POST approval as client before copy expert
+API --> Practitioner: rejected, no approval row
+Practitioner -> API: POST client approval with no assignee
+API --> Practitioner: pending, no fabricated approver
+@enduml

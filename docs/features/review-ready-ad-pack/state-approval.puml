@@ -1,0 +1,25 @@
+@startuml state-approval
+title AdVerity review-ready ad pack — Version state
+footer CONFIDENTIAL — Internal use only · (c) HARA Solutions Limited & HealthCrew.ai
+
+[*] --> NeedsInput : evidence or confirmation missing
+[*] --> ModelUnavailable : adapter failure
+[*] --> ValidationFailed : count or required assets failed
+[*] --> ReadyForExpert : validator passed
+
+ValidationFailed --> ReadyForExpert : one repair produces a new version that passes
+ReadyForExpert --> ExpertApproved : copy expert approves this content_hash
+ExpertApproved --> AwaitingLanguage : expert cannot assess the locale
+ExpertApproved --> ExportEligible : route approver approves this content_hash\nand language review is not required
+AwaitingLanguage --> ExportEligible : language reviewer and route approver\nboth approved this content_hash
+
+ReadyForExpert --> PendingApprover : route approver unassigned
+PendingApprover --> ReadyForExpert : approver assignment stored
+
+ExportEligible --> Superseded : text, offer, locale, or destination edit
+ExpertApproved --> Superseded : text, offer, locale, or destination edit
+ReadyForExpert --> ReadyForExpert : comment only
+ExportEligible --> ExportEligible : comment only
+
+Superseded --> [*] : a new version starts the pipeline
+@enduml

@@ -1,0 +1,27 @@
+@startuml c4-container
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+title AdVerity review-ready ad pack — Containers
+
+Person(user, "Practitioner, copy expert, or approver", "Identity and role come from the server session and assignment rows")
+
+System_Boundary(adverity, "AdVerity") {
+  Container(web, "Web workspace", "Next.js", "Holding page while the flag is off. Review workspace while the flag is on")
+  Container(api, "Ad Pack service", "Next.js route handlers", "Flag gate, orchestration, validation, approvals, export")
+  Container(fetch, "Evidence fetcher", "Node", "Public URL retrieval with SSRF controls")
+  ContainerDb(db, "Review store", "SQLite", "Packs, versions, evidence, playbook, approvals")
+}
+
+System_Ext(site, "Advertiser public site", "Untrusted")
+System_Ext(model, "Pinned model endpoint", "Hosted inference")
+System_Ext(elk, "ELK", "Logs, dashboards, alerts")
+
+Rel(user, web, "Uses", "HTTPS")
+Rel(web, api, "Calls", "JSON, same origin")
+Rel(api, fetch, "Requests a guarded fetch")
+Rel(fetch, site, "GET public URL", "HTTP/HTTPS")
+Rel(api, model, "Draft, critic, repair", "HTTPS")
+Rel(api, db, "Reads and writes review state", "SQL")
+Rel(api, elk, "Structured events", "JSON")
+
+footer CONFIDENTIAL — Internal use only · (c) HARA Solutions Limited & HealthCrew.ai
+@enduml
