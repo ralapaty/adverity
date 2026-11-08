@@ -6,6 +6,8 @@
 
 **Who it is for:** freelance and in-house Google Ads subject-matter experts.
 
+**0.2.0 — 2026-11-08.** Render is the recorded host. Search export uses the 29-column handoff. Performance Max is an unverified text handoff. Sign-in is limited, production responses send HSTS, and a signed-in person can withdraw consent, download their packs, and delete them. A Docker image packages the same process with the flag off. None of this is a certification, a live campaign, or a tested Editor import.
+
 **Not in this release:** Grona campaigns, Google Ads publishing, ad spend, Editor-compatible import, a second locale without a language reviewer, model training, and enterprise single sign-on.
 
 **Success metric:** median time from submit to the first version that passes the character validator. Baseline is unmeasured. The pilot target is five minutes on the illustrative en-GB brief. The metric is not a CTR or ROAS claim.
