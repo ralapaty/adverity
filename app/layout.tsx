@@ -26,6 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <p>{SITE.tagline}</p>
         </header>
         <main id="content">{children}</main>
+        <footer>HealthCrew.ai is the worked example, not a customer. An export is not a tested Google Ads Editor import, and it is not permission to spend.</footer>
       </body>
     </html>
   );

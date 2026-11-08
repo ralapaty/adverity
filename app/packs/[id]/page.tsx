@@ -26,7 +26,7 @@ export default async function PackPage({ params }: { params: Promise<{ id: strin
         {market.roles_overlap ? " This review is not an independent review." : ""}
         {market.independent_review && market.review.copy_expert === "approved" ? " Copy expert and practitioner are different people." : ""}
       </p>
-      <p>Audience: {pack.audience}. Route: {pack.approver_route}. Playbook: {pack.playbook_version}.</p>
+      <p className="meta">Audience: {pack.audience}. Route: {readable(pack.approver_route)}. Playbook: {pack.playbook_version}.</p>
       {pack.limitations.length > 0 ? (
         <section>
           <h2>Limitations</h2>
@@ -37,14 +37,14 @@ export default async function PackPage({ params }: { params: Promise<{ id: strin
         <h2>Intent</h2>
         <ul>
           {pack.intent_map.map((row) => (
-            <li key={row.keyword_theme}>{row.keyword_theme}: {row.intent_label}, {row.researched ? "researched" : "unresearched"}</li>
+            <li key={row.keyword_theme}>{row.keyword_theme}: {readable(row.intent_label)}, {row.researched ? "researched" : "unresearched"}</li>
           ))}
         </ul>
       </section>
       <section>
         <h2>Evidence</h2>
         {pack.evidence.map((item) => (
-          <p key={item.id}><strong>{item.label}</strong> — {item.excerpt}</p>
+          <p key={item.id}><strong>{readable(item.label)}</strong> — {item.excerpt}</p>
         ))}
       </section>
       <section>
@@ -57,7 +57,7 @@ export default async function PackPage({ params }: { params: Promise<{ id: strin
                 <td>{asset.kind}</td>
                 <td>{asset.text}</td>
                 <td>{asset.google_count === null ? "not counted" : `${asset.google_count} characters`}</td>
-                <td>{asset.flags.join(", ")}</td>
+                <td>{asset.flags.map(readable).join(", ")}</td>
               </tr>
             ))}
           </tbody>
@@ -65,6 +65,7 @@ export default async function PackPage({ params }: { params: Promise<{ id: strin
       </section>
       <section>
         <h2>Critique</h2>
+        <div className="critique">
         {market && pack.critique_log.map((entry) => (
           <article key={entry.before}>
             <p>Before: {entry.before}</p>
@@ -72,6 +73,7 @@ export default async function PackPage({ params }: { params: Promise<{ id: strin
             <p>After: {entry.after}</p>
           </article>
         ))}
+        </div>
       </section>
       {mine.some((row) => row.role === "practitioner") ? (
         <form method="post" action={`/api/packs/${id}/assignments`}>
@@ -127,4 +129,8 @@ export default async function PackPage({ params }: { params: Promise<{ id: strin
       </form>
     </>
   );
+}
+
+function readable(value: string) {
+  return value.replaceAll("_", " ").replaceAll("role:", "");
 }

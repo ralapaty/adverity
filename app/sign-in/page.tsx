@@ -12,9 +12,10 @@ export default async function SignInPage() {
   if (existing) redirect("/");
   return (
     <>
+      <p className="eyebrow">Pilot access</p>
       <h1>Sign in</h1>
-      <p>Pilot sign-in is not an enterprise identity provider. Your role on a pack is assigned on the server.</p>
-      <form method="post" action="/api/session">
+      <p className="lede">Pilot sign-in is not an enterprise identity provider. Your role on a pack is assigned on the server.</p>
+      <form className="narrow" method="post" action="/api/session">
         <label htmlFor="username">Username</label>
         <input id="username" name="username" autoComplete="username" required />
         <label htmlFor="passphrase">Passphrase</label>

@@ -4,6 +4,8 @@
 
 ## Unreleased
 
+The holding page, sign-in, workspace, and pack page now lead with the five checks and the closed export. Labels on the pack page are readable. The HealthCrew example still cannot invent a benefit, so its export stays closed. A narrated product reel is in `exports/`.
+
 ## 0.2.0 — 2026-11-08
 
 The runtime host is Render, with SQLite on a persistent disk and the feature flag still off in `render.yaml`. Requirements R24–R33 add the Search handoff and the Performance Max text label. The illustrative HealthCrew pack stays short of six outcome, problem, or benefit headlines, so its export stays closed. Headline roles survive an edit. The workspace collects paths, and a Performance Max business name is confirmed by the route approver rather than by the create request.
