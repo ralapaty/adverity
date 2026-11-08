@@ -2,7 +2,9 @@
 
 > **CONFIDENTIAL — Internal use only.** © HARA Solutions Limited & HealthCrew.ai. Not for external distribution.
 
-The runtime is a Render web service named `adverity`, declared in `render.yaml` at the repository root. Render runs Node 22, builds with `npm ci && npm run build`, and starts with `npm start`. The health check is `GET /api/feature-flags`.
+The runtime host is a Render web service named `adverity`, declared in `render.yaml` at the repository root. Render runs Node 22, builds with `npm ci && npm run build`, and starts with `npm start`. The health check is `GET /api/feature-flags`.
+
+The same process is packaged in `Dockerfile` and `docker-compose.yml` for a local or portable run. That image defaults the product flag to false and stores SQLite at `/var/data/adverity.sqlite`. It does not replace the Render service.
 
 | Item | Value |
 |---|---|

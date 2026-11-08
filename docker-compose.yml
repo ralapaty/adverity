@@ -1,0 +1,13 @@
+services:
+  adverity:
+    build: .
+    ports:
+      - "127.0.0.1:3000:3000"
+    environment:
+      NODE_ENV: production
+      FEATURE_REVIEW_READY_AD_PACK: "false"
+      ADVERITY_DB: /var/data/adverity.sqlite
+    volumes:
+      - adverity-data:/var/data
+volumes:
+  adverity-data:

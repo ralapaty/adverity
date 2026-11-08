@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { hstsValue } from "./src/domain/privacy";
 
 export function middleware(request: NextRequest) {
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
@@ -20,6 +21,8 @@ export function middleware(request: NextRequest) {
   response.headers.set("Referrer-Policy", "no-referrer");
   response.headers.set("X-Frame-Options", "DENY");
   response.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+  const hsts = hstsValue(process.env);
+  if (hsts) response.headers.set("Strict-Transport-Security", hsts);
   return response;
 }
 

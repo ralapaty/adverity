@@ -1,0 +1,15 @@
+node_modules
+.next
+.git
+data
+coverage
+.stryker-tmp
+reports
+playwright-report
+test-results
+.env
+.env.*
+*.sqlite
+docs
+tests
+playwright.config.ts

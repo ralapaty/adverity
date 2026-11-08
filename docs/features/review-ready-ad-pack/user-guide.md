@@ -38,6 +38,8 @@ Sign in with one of the pilot usernames and the shared passphrase: `practitioner
 
 A comment stays on the version and does not approve it. Editing ad text, the offer, the locale, or the destination starts a new version and clears both approvals.
 
+The session cookie is required to sign in. Product metrics start only after you record consent, and they stop if you withdraw it. Download my packs returns the packs you created. Delete my packs removes those packs. Packs older than 90 days are removed when the database opens.
+
 Publishing a campaign and spending a budget are not actions in this product.
 
 ## Product metrics

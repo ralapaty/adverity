@@ -38,6 +38,7 @@ export default async function HomePage() {
         Freelance and in-house Google Ads subject-matter experts use AdVerity to prepare an intent-led draft,
         then keep export closed until a copy expert and the route approver sign the exact version.
       </p>
+      <p>The session cookie is required to sign in. Product metrics wait for a separate yes.</p>
       <section aria-labelledby="faq-heading">
         <h2 id="faq-heading">Questions</h2>
         {FAQS.map((item) => (
@@ -62,6 +63,18 @@ function Workspace({ csrf, actor }: { csrf: string; actor: string }) {
       <form method="post" action="/api/consent">
         <input type="hidden" name="csrf" value={csrf} />
         <button type="submit">Record consent for product metrics</button>
+      </form>
+      <form method="post" action="/api/consent">
+        <input type="hidden" name="csrf" value={csrf} />
+        <input type="hidden" name="withdraw" value="true" />
+        <button type="submit">Withdraw product-metric consent</button>
+      </form>
+      <form method="get" action="/api/privacy">
+        <button type="submit">Download my packs</button>
+      </form>
+      <form method="post" action="/api/privacy">
+        <input type="hidden" name="csrf" value={csrf} />
+        <button type="submit">Delete my packs</button>
       </form>
       <form method="post" action="/api/packs">
         <input type="hidden" name="csrf" value={csrf} />

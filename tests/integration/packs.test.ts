@@ -77,7 +77,7 @@ describe("pack HTTP API", () => {
         ADVERITY_PILOT_PASSPHRASE: passphrase,
         MODEL_ADAPTER: "fixture",
         EVIDENCE_MODE: "fixture",
-        ADVERITY_PACK_RATE_LIMIT: "8",
+        ADVERITY_PACK_RATE_LIMIT: "40",
         NODE_ENV: "test",
       },
       resolveHost: async () => ["93.184.216.34"],
@@ -150,6 +150,15 @@ describe("pack HTTP API", () => {
       expect(await flags.json()).toEqual({ review_ready_ad_pack: false });
       const created = await handleRequest(new Request("http://internal/api/packs", { method: "POST", body: "{}" }));
       expect(created.status).toBe(404);
+      const signIn = await handleRequest(
+        new Request("http://internal/api/session", {
+          method: "POST",
+          headers: { "content-type": "application/json", "x-forwarded-for": "198.51.100.20" },
+          body: JSON.stringify({ username: "practitioner", passphrase: "wrong" }),
+        }),
+      );
+      expect(signIn.status).toBe(401);
+      expect(await signIn.json()).toEqual({ error: "sign_in_failed" });
     } finally {
       setTestDeps(onDeps);
     }
@@ -415,5 +424,79 @@ describe("pack HTTP API", () => {
     const body = await exported.text();
     expect(body.startsWith("Draft asset handoff — Editor import compatibility not verified.")).toBe(true);
     expect(body).not.toContain("Responsive search ad");
+  });
+
+  it("limits sign-in, withdraws consent, and returns or deletes only that person's packs (R1, R3–R5)", async () => {
+    const address = { "x-forwarded-for": "203.0.113.44" };
+    const hidden = await fetch(`${origin}/api/session`, {
+      method: "POST",
+      headers: { "content-type": "application/json", ...address },
+      body: JSON.stringify({ username: "nobody", passphrase: "wrong" }),
+    });
+    expect(hidden.status).toBe(401);
+    expect(await hidden.json()).toEqual({ error: "sign_in_failed" });
+    for (let attempt = 0; attempt < 7; attempt += 1) {
+      const failed = await fetch(`${origin}/api/session`, {
+        method: "POST",
+        headers: { "content-type": "application/json", ...address },
+        body: JSON.stringify({ username: "practitioner", passphrase: "wrong" }),
+      });
+      expect(failed.status).toBe(401);
+      expect(await failed.json()).toEqual({ error: "sign_in_failed" });
+    }
+    const limited = await fetch(`${origin}/api/session`, {
+      method: "POST",
+      headers: { "content-type": "application/json", ...address },
+      body: JSON.stringify({ username: "practitioner", passphrase }),
+    });
+    expect(limited.status).toBe(429);
+    expect(await limited.json()).toEqual({ error: "sign_in_limited" });
+
+    const practitioner = await login("practitioner");
+    const created = await fetch(`${origin}/api/packs`, { method: "POST", headers: authed(practitioner), body: JSON.stringify(sample) });
+    const pack = (await created.json()) as PackBody;
+    await fetch(`${origin}/api/consent`, { method: "POST", headers: authed(practitioner), body: "{}" });
+    const before = logs.filter((event) => event.event === "ad_pack_validated").length;
+    await fetch(`${origin}/api/packs`, { method: "POST", headers: authed(practitioner), body: JSON.stringify({ ...sample, advertiser: "Second" }) });
+    expect(logs.filter((event) => event.event === "ad_pack_validated").length).toBe(before + 1);
+    await fetch(`${origin}/api/consent`, { method: "POST", headers: authed(practitioner), body: JSON.stringify({ withdraw: "true" }) });
+    await fetch(`${origin}/api/packs`, { method: "POST", headers: authed(practitioner), body: JSON.stringify({ ...sample, advertiser: "Third" }) });
+    expect(logs.filter((event) => event.event === "ad_pack_validated").length).toBe(before + 1);
+
+    const other = await login("copy-expert");
+    const mine = await fetch(`${origin}/api/privacy`, { headers: { cookie: practitioner.cookie } });
+    const exported = (await mine.json()) as { packs: Array<{ id: string; brief: string }> };
+    expect(exported.packs.some((row) => row.id === pack.id)).toBe(true);
+    expect(JSON.stringify(exported)).not.toContain(PRIVATE_PLAYBOOK_SENTINEL);
+    const theirs = (await (await fetch(`${origin}/api/privacy`, { headers: { cookie: other.cookie } })).json()) as { packs: Array<{ id: string }> };
+    expect(theirs.packs.some((row) => row.id === pack.id)).toBe(false);
+
+    const removed = await fetch(`${origin}/api/privacy`, { method: "POST", headers: authed(practitioner), body: "{}" });
+    const erasure = (await removed.json()) as { deleted: number };
+    expect(erasure.deleted).toBeGreaterThanOrEqual(3);
+    expect(logs.some((event) => event.event === "data_deleted" && JSON.stringify(event).includes(sample.brief))).toBe(false);
+    const gone = (await (await fetch(`${origin}/api/packs/${pack.id}`, { headers: { cookie: practitioner.cookie } })).json()) as { error?: string };
+    expect(gone.error).toBe("not_found");
+  });
+
+  it("adds HSTS in production and keeps the flag-off API closed (R2, R8)", async () => {
+    const dir = mkdtempSync(join(tmpdir(), "adverity-hsts-"));
+    setTestDeps({
+      ...onDeps,
+      env: { ...onDeps.env, NODE_ENV: "production", ADVERITY_DB: join(dir, "hsts.sqlite") },
+    });
+    try {
+      const flags = await handleRequest(new Request("http://internal/api/feature-flags"));
+      expect(flags.headers.get("strict-transport-security")).toBe("max-age=15552000");
+      setTestDeps({
+        ...onDeps,
+        env: { ...onDeps.env, FEATURE_REVIEW_READY_AD_PACK: "false", NODE_ENV: "production", ADVERITY_DB: join(dir, "off.sqlite") },
+      });
+      const blocked = await handleRequest(new Request("http://internal/api/packs", { method: "POST", body: "{}" }));
+      expect(blocked.status).toBe(404);
+      expect(blocked.headers.get("strict-transport-security")).toBe("max-age=15552000");
+    } finally {
+      setTestDeps(onDeps);
+    }
   });
 });

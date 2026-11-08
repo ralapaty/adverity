@@ -67,6 +67,21 @@ Commands: set `FEATURE_REVIEW_READY_AD_PACK` to `true` on the production Render 
 
 Verify: the same curl against the production origin, then a holding-page check that the wordmark and the three questions render. Confirm the session cookie has `Secure` on HTTPS.
 
+## 5b — Play: local container
+
+Goal: run the same process in Docker without turning the product on. This does not change the Render service.
+
+Commands, from the repository root, with the Docker daemon running:
+
+```bash
+docker compose up --build
+curl -sS http://127.0.0.1:3000/api/feature-flags
+```
+
+Expect `{ "review_ready_ad_pack": false }`. The compose file mounts a volume at `/var/data` and does not set the passphrase or the model key. Pass those only in the shell environment when a pilot run is intended. An unmounted container loses the SQLite file on exit.
+
+Stop: `docker compose down`. Add `-v` only when the local database should be discarded.
+
 ## 6 — Play: day-2
 
 - Rotate `ADVERITY_PILOT_PASSPHRASE` by replacing the environment value and creating a new database, or by updating `actor.passphrase_hash` with a new scrypt hash. Existing sessions expire after 12 hours.
@@ -105,8 +120,12 @@ A code rollback is a revert of the merge and a redeploy. The schema is additive.
 
 - T1–T15 in `docs/features/review-ready-ad-pack/threat-model.md`.
 - DPIA is a draft. Do not enable the flag for anyone beyond the named operators until privacy review.
-- No product-analytics call runs before the consent row.
-- The model key never uses a `NEXT_PUBLIC_` name.
+- No product-analytics call runs before the consent row. Withdrawing consent deletes that row.
+- Sign-in returns 429 after 8 failures in 15 minutes for one address, including while the product flag is off. The body does not say whether the username exists. The address is the first `X-Forwarded-For` hop. Render must set that header. A missing header shares one bucket. A client who can replace the first hop can start a new bucket.
+- Production responses include `Strict-Transport-Security`. Local and test responses do not.
+- `GET /api/privacy` returns the signed-in person's packs. `POST /api/privacy` deletes them and writes `data_deleted` without the brief.
+- `ADVERITY_RETENTION_DAYS` defaults to 90. Set it to `0` to keep packs until a person deletes them.
+- The model key never uses a `NEXT_PUBLIC_` name. These controls are not a certification.
 
 ## 11 — Related docs
 

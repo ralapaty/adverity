@@ -124,6 +124,11 @@ CREATE TABLE IF NOT EXISTS rate_bucket (
   count INTEGER NOT NULL,
   PRIMARY KEY (actor_id, window_start)
 );
+CREATE TABLE IF NOT EXISTS sign_in_failure (
+  id TEXT PRIMARY KEY,
+  address TEXT NOT NULL,
+  failed_at INTEGER NOT NULL
+);
 CREATE TABLE IF NOT EXISTS pack_handoff (
   pack_id TEXT PRIMARY KEY,
   campaign_type TEXT NOT NULL,

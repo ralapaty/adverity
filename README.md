@@ -8,4 +8,4 @@ How to run a pilot, review a pack, and turn the feature off: [docs/features/revi
 
 Operator procedures: [docs/ops/review-ready-ad-pack-devsecops-playbook.md](docs/ops/review-ready-ad-pack-devsecops-playbook.md).
 
-The runtime host is Render (`render.yaml`). The strategy and revised master prompt: [docs/brief/AdVerity-Strategy-and-Revised-Master-Prompt.md](docs/brief/AdVerity-Strategy-and-Revised-Master-Prompt.md).
+The runtime host is Render (`render.yaml`). The same process can be built with `docker compose up` (`Dockerfile`). The product flag stays off in both places. The strategy and revised master prompt: [docs/brief/AdVerity-Strategy-and-Revised-Master-Prompt.md](docs/brief/AdVerity-Strategy-and-Revised-Master-Prompt.md).
