@@ -28,6 +28,7 @@ type PackBody = {
     assets: Array<{ text: string; google_count: number; flags: string[] }>;
   }>;
   critique_log: Array<{ before: string; issue: string }>;
+  limitations?: string[];
 };
 
 async function listen(): Promise<{ server: Server; origin: string }> {
@@ -222,15 +223,10 @@ describe("pack HTTP API", () => {
       headers: authed(client),
       body: JSON.stringify({ role: "external_client", confirmOffer: "true", confirmDestination: "true" }),
     });
-    const ready = (await approved.json()) as PackBody;
-    expect(ready.market_packs[0].export_eligible).toBe(true);
-    expect(ready.status).toBe("export_eligible");
-
-    const exported = await fetch(`${origin}/api/packs/${pack.id}/export`, { headers: { cookie: client.cookie } });
-    expect(exported.status).toBe(200);
-    const csv = await exported.text();
-    expect(csv).toContain("Not a tested Google Ads Editor import");
-    expect(csv).toContain("Healthcare Hiring Platform");
+    const ready = (await approved.json()) as PackBody & { limitations: string[] };
+    expect(ready.market_packs[0].export_eligible).toBe(false);
+    expect(ready.limitations.join(" ")).toMatch(/six headlines/);
+    expect((await fetch(`${origin}/api/packs/${pack.id}/export`, { headers: { cookie: client.cookie } })).status).toBe(409);
 
     const revised = await fetch(`${origin}/api/packs/${pack.id}/revisions`, {
       method: "POST",
@@ -269,6 +265,54 @@ describe("pack HTTP API", () => {
     expect((await fetch(`${origin}/api/packs/${pack.id}`, { headers: { cookie: practitioner.cookie } })).status).toBe(401);
   });
 
+  it("exports a 29-column Search file only when the handoff checks pass (R28)", async () => {
+    const practitioner = await login("practitioner");
+    const keywords = Array.from({ length: 10 }, (_, index) => `theme ${index + 1}|Phrase`).join(";");
+    const created = await fetch(`${origin}/api/packs`, {
+      method: "POST",
+      headers: authed(practitioner),
+      body: JSON.stringify({
+        ...sample,
+        brief: "ROLE_QUOTA_FIXTURE supported lines for the handoff test.",
+        adGroup: "care hiring software",
+        paths: "hiring-tools,next-step",
+        keywords,
+        campaignName: "HealthCrew",
+      }),
+    });
+    expect(created.status).toBe(201);
+    const pack = (await created.json()) as PackBody;
+    expect(pack.market_packs[0].validation_passed).toBe(true);
+    await fetch(`${origin}/api/packs/${pack.id}/assignments`, {
+      method: "POST",
+      headers: authed(practitioner),
+      body: JSON.stringify({ role: "copy_expert", username: "copy-expert", canAssessLocale: "true" }),
+    });
+    await fetch(`${origin}/api/packs/${pack.id}/assignments`, {
+      method: "POST",
+      headers: authed(practitioner),
+      body: JSON.stringify({ role: "external_client", username: "external-client" }),
+    });
+    const expert = await login("copy-expert");
+    await fetch(`${origin}/api/packs/${pack.id}/approvals`, { method: "POST", headers: authed(expert), body: JSON.stringify({ role: "copy_expert" }) });
+    const client = await login("external-client");
+    const approved = await fetch(`${origin}/api/packs/${pack.id}/approvals`, {
+      method: "POST",
+      headers: authed(client),
+      body: JSON.stringify({ role: "external_client", confirmOffer: "true", confirmDestination: "true" }),
+    });
+    const ready = (await approved.json()) as PackBody;
+    expect(ready.market_packs[0].export_eligible).toBe(true);
+    const exported = await fetch(`${origin}/api/packs/${pack.id}/export`, { headers: { cookie: client.cookie } });
+    expect(exported.status).toBe(200);
+    expect(exported.headers.get("x-adverity-export-note")).toBe("Import has not been tested.");
+    const csv = await exported.text();
+    expect(csv.split("\n")[0]).toBe('"Campaign","Ad group","Keyword","Criterion Type","Ad type","Final URL","Path 1","Path 2","Headline 1","Headline 1 position","Headline 2","Headline 2 position","Headline 3","Headline 4","Headline 5","Headline 6","Headline 7","Headline 8","Headline 9","Headline 10","Headline 11","Headline 12","Headline 13","Headline 14","Headline 15","Description 1","Description 2","Description 3","Description 4"');
+    expect(csv).toContain("Outcome line 1");
+    expect(csv).not.toContain("[");
+    expect(csv.split("\n")).toHaveLength(12);
+  });
+
   it("records role overlap and keeps the in-house route distinct (R11, R12)", async () => {
     const practitioner = await login("practitioner");
     const created = await fetch(`${origin}/api/packs`, {
@@ -298,5 +342,78 @@ describe("pack HTTP API", () => {
       body: JSON.stringify({ role: "external_client", confirmOffer: "true", confirmDestination: "true" }),
     });
     expect(rejected.status).toBe(403);
+  });
+
+  it("keeps headline roles after an edit and exports Performance Max only after the route approver confirms the business name", async () => {
+    const practitioner = await login("practitioner");
+    const created = await fetch(`${origin}/api/packs`, {
+      method: "POST",
+      headers: authed(practitioner),
+      body: JSON.stringify({
+        ...sample,
+        brief: "ROLE_QUOTA_FIXTURE supported lines for the revision test.",
+        adGroup: "care hiring software",
+        paths: ["hiring-tools", "next-step"],
+        keywords: [{ text: "care software", criterion: "Phrase" }],
+      }),
+    });
+    const pack = (await created.json()) as PackBody;
+    const revised = await fetch(`${origin}/api/packs/${pack.id}/revisions`, {
+      method: "POST",
+      headers: authed(practitioner),
+      body: JSON.stringify({ kind: "headline", position: 1, text: "Outcome line A" }),
+    });
+    const edited = (await revised.json()) as PackBody;
+    const kept = edited.market_packs[0].assets.find((asset) => asset.text === "Outcome line A");
+    expect(kept?.flags).toContain("role:outcome");
+    expect(edited.limitations?.some((item) => item.includes("six headlines"))).toBe(false);
+
+    const pmax = await fetch(`${origin}/api/packs`, {
+      method: "POST",
+      headers: authed(practitioner),
+      body: JSON.stringify({
+        ...sample,
+        campaignType: "performance_max",
+        businessName: "HealthCrew AI",
+        adGroup: "care hiring software",
+        brief: "Performance Max text handoff for the illustrative platform.",
+      }),
+    });
+    const performance = (await pmax.json()) as PackBody;
+    expect(pmax.status).toBe(201);
+    await fetch(`${origin}/api/packs/${performance.id}/assignments`, {
+      method: "POST",
+      headers: authed(practitioner),
+      body: JSON.stringify({ role: "copy_expert", username: "copy-expert", canAssessLocale: "true" }),
+    });
+    await fetch(`${origin}/api/packs/${performance.id}/assignments`, {
+      method: "POST",
+      headers: authed(practitioner),
+      body: JSON.stringify({ role: "external_client", username: "external-client" }),
+    });
+    const expert = await login("copy-expert");
+    await fetch(`${origin}/api/packs/${performance.id}/approvals`, { method: "POST", headers: authed(expert), body: JSON.stringify({ role: "copy_expert" }) });
+    const client = await login("external-client");
+    const pending = await fetch(`${origin}/api/packs/${performance.id}/approvals`, {
+      method: "POST",
+      headers: authed(client),
+      body: JSON.stringify({ role: "external_client", confirmOffer: "true", confirmDestination: "true", businessNameVerified: "true" }),
+    });
+    const held = (await pending.json()) as PackBody;
+    expect(held.market_packs[0].export_eligible).toBe(false);
+    expect((await fetch(`${origin}/api/packs/${performance.id}/export`, { headers: { cookie: client.cookie } })).status).toBe(409);
+    const confirmed = await fetch(`${origin}/api/packs/${performance.id}/approvals`, {
+      method: "POST",
+      headers: authed(client),
+      body: JSON.stringify({ role: "external_client", confirmOffer: "true", confirmDestination: "true", confirmBusinessName: "true" }),
+    });
+    const ready = (await confirmed.json()) as PackBody;
+    expect(ready.market_packs[0].export_eligible).toBe(true);
+    const exported = await fetch(`${origin}/api/packs/${performance.id}/export`, { headers: { cookie: client.cookie } });
+    expect(exported.status).toBe(200);
+    expect(exported.headers.get("content-type")).toContain("text/plain");
+    const body = await exported.text();
+    expect(body.startsWith("Draft asset handoff — Editor import compatibility not verified.")).toBe(true);
+    expect(body).not.toContain("Responsive search ad");
   });
 });

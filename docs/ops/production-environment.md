@@ -2,7 +2,16 @@
 
 > **CONFIDENTIAL — Internal use only.** © HARA Solutions Limited & HealthCrew.ai. Not for external distribution.
 
-No production host is recorded in this repository yet. When one is chosen, record the host, the process user, and the path of `ADVERITY_DB` here.
+The runtime is a Render web service named `adverity`, declared in `render.yaml` at the repository root. Render runs Node 22, builds with `npm ci && npm run build`, and starts with `npm start`. The health check is `GET /api/feature-flags`.
+
+| Item | Value |
+|---|---|
+| Host | Render web service `adverity` |
+| Process | The Render service process. One instance, because the disk attaches to one instance |
+| Database | `/var/data/adverity.sqlite` on the persistent disk mounted at `/var/data` |
+| Public URL | The Render service URL, stored as `ADVERITY_ORIGIN` in the dashboard. It is not committed |
+
+The blueprint sets `FEATURE_REVIEW_READY_AD_PACK` to `false`. A flag change restarts the existing build so Render can inject the variable. It does not require a new application build. ADR 007.
 
 | Flag | Default | Where it is read |
 |---|---|---|

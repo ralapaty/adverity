@@ -19,5 +19,5 @@ Packs, versions, assets, evidence, playbook rows, role assignments, approvals, c
 ## Consequences
 
 - Positive: one file to back up, no extra database service on the critical path, transactions for "write version and clear approvals".
-- Negative / trade-offs: two app instances would split the record. Enablement stays single-process until an ADR replaces this store. SQLite write locks limit concurrent reviewers; that matches the MVP.
+- Negative / trade-offs: two app instances would split the record. On Render the file is `/var/data/adverity.sqlite` on one persistent disk, so the service stays at one instance (ADR 007). SQLite write locks limit concurrent reviewers; that matches the MVP.
 - Alternatives considered: Postgres from day one — sound for a shared workspace, and heavier than this feature needs. Client-side storage — rejected because approval integrity would sit with the caller.

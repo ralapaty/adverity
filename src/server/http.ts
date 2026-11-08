@@ -52,6 +52,20 @@ async function fields(request: Request): Promise<Record<string, string>> {
       if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") flat[key] = String(value);
     }
     if (Array.isArray(record.keywordThemes)) flat.keywordThemes = (record.keywordThemes as string[]).join(", ");
+    if (Array.isArray(record.paths)) flat.paths = record.paths.filter((item): item is string => typeof item === "string").join(",");
+    if (Array.isArray(record.keywords)) {
+      flat.keywords = record.keywords
+        .map((item) => {
+          if (typeof item === "string") return item;
+          if (item && typeof item === "object" && "text" in item) {
+            const row = item as { text?: unknown; criterion?: unknown };
+            return `${String(row.text ?? "")}|${typeof row.criterion === "string" ? row.criterion : "Phrase"}`;
+          }
+          return "";
+        })
+        .filter(Boolean)
+        .join(";");
+    }
     return flat;
   }
   return Object.fromEntries(new URLSearchParams(await request.text()));
@@ -130,6 +144,15 @@ export async function handleRequest(request: Request): Promise<Response> {
         locale: body.locale || "en-GB",
         destinationUrl: body.destinationUrl,
         offerSummary: body.offerSummary,
+        campaignType: body.campaignType === "performance_max" ? "performance_max" : "search",
+        campaignName: body.campaignName || body.advertiser,
+        businessName: body.businessName || "",
+        paths: (body.paths || "").split(/[,;]/).map((item) => item.trim()).filter(Boolean),
+        keywords: (body.keywords || "").split(";").map((item) => item.trim()).filter(Boolean).map((item) => {
+          const [text, criterion] = item.split("|");
+          const match = criterion === "Exact" || criterion === "Broad" ? criterion : "Phrase";
+          return { text: (text || "").trim(), criterion: match };
+        }).filter((item) => item.text),
       },
       traceId,
     );
@@ -168,7 +191,11 @@ export async function handleRequest(request: Request): Promise<Response> {
       session.actorId,
       packId,
       body.role as ApprovalRole,
-      { offer: body.confirmOffer === "true" || body.confirmOffer === "on", destination: body.confirmDestination === "true" || body.confirmDestination === "on" },
+      {
+        offer: body.confirmOffer === "true" || body.confirmOffer === "on",
+        destination: body.confirmDestination === "true" || body.confirmDestination === "on",
+        businessName: body.confirmBusinessName === "true" || body.confirmBusinessName === "on",
+      },
       traceId,
     );
     if (!result.ok) return json({ status: result.reason }, result.status);
@@ -199,7 +226,8 @@ export async function handleRequest(request: Request): Promise<Response> {
   if (action === "export" && request.method === "GET") {
     const result = exportPack(db, deps, session.actorId, packId, traceId);
     if (!result.ok) return json({ status: result.reason }, result.status);
-    return new Response(result.body, { headers: { "content-type": "text/csv; charset=utf-8" } });
+    const type = result.campaignType === "performance_max" ? "text/plain; charset=utf-8" : "text/csv; charset=utf-8";
+    return new Response(result.body, { headers: { "content-type": type, "x-adverity-export-note": result.note } });
   }
   return json({ error: "not_found" }, 404);
 }

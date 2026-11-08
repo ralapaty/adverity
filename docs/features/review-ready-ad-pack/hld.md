@@ -14,6 +14,8 @@ Give a freelance or in-house Google Ads practitioner one review-ready Search ad 
 - SQLite is the system of record on one Node process. A shared multi-node workspace waits for a later ADR. See ADR 004.
 - Roles are rows plus a server session. A client-side role switch cannot approve. See ADR 005.
 - One Next.js application serves the holding page, the workspace, and the APIs, so the model key never ships to the browser. See ADR 006.
+- The process runs on Render as one web service. SQLite is the file `/var/data/adverity.sqlite` on a persistent disk. The blueprint leaves the flag off. See ADR 007.
+- The 8 November 2026 revised master prompt adds a Search export shape, paths, keyword rows, and a Performance Max text pack. Those behaviours are specified as R24–R32 and are not in the running application until that design is signed off.
 - Character limits are computed in `GoogleCounter`, then checked against current Google Ads counting rules before any production enablement. The ASCII fixtures in `requirements.md` are the regression set.
 - Grona is outside this system. A campaign that promotes AdVerity is a different audience from a pack that advertises a customer's product.
 
@@ -26,7 +28,7 @@ Give a freelance or in-house Google Ads practitioner one review-ready Search ad 
 | Someone treats the HealthCrew illustration as a live customer or a publishable campaign | R20. Export remains a review extract. Publishing is out of scope |
 | Demo role switching is mistaken for authentication | ADR 005. The UI states that the session is a pilot mechanism |
 | Character-count code drifts from Google's current rules | Fixtures plus an explicit pre-enablement check in the low-level design. No silent truncation |
-| Two servers split SQLite and disagree on approvals | Enablement is single-process until the store ADR is replaced |
+| Two servers split SQLite and disagree on approvals | Render attaches the disk to one instance. Do not scale the service out. ADR 007 |
 
 ## C4 L1 — System Context
 
@@ -77,7 +79,7 @@ System_Boundary(adverity, "AdVerity") {
   Container(web, "Web workspace", "Next.js", "Holding page while the flag is off. Review workspace while the flag is on")
   Container(api, "Ad Pack service", "Next.js route handlers", "Flag gate, orchestration, validation, approvals, export")
   Container(fetch, "Evidence fetcher", "Node", "Public URL retrieval with SSRF controls")
-  ContainerDb(db, "Review store", "SQLite", "Packs, versions, evidence, playbook, approvals")
+  ContainerDb(db, "Review store", "SQLite on a Render disk", "Packs, versions, evidence, playbook, approvals. File /var/data/adverity.sqlite")
 }
 
 System_Ext(site, "Advertiser public site", "Untrusted")

@@ -1,0 +1,34 @@
+# Render Blueprint for the AdVerity Next.js process.
+# The feature flag is off. A disk-backed web service stays on one instance.
+# Secrets are filled in the Render dashboard (sync: false). They are not in git.
+services:
+  - type: web
+    name: adverity
+    runtime: node
+    plan: starter
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/feature-flags
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: NODE_ENV
+        value: production
+      - key: FEATURE_REVIEW_READY_AD_PACK
+        value: "false"
+      - key: ADVERITY_DB
+        value: /var/data/adverity.sqlite
+      - key: ADVERITY_ORIGIN
+        sync: false
+      - key: ADVERITY_PILOT_PASSPHRASE
+        sync: false
+      - key: MODEL_ENDPOINT
+        sync: false
+      - key: MODEL_API_KEY
+        sync: false
+      - key: MODEL_ID
+        sync: false
+    disk:
+      name: adverity-data
+      mountPath: /var/data
+      sizeGB: 1

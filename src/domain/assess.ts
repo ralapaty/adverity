@@ -10,7 +10,7 @@ export type AssessedAsset = HashAsset & {
 
 export function assessAssets(
   assets: HashAsset[],
-  context: { locale: string; destinationUrl: string; offerSummary: string },
+  context: { locale: string; destinationUrl: string; offerSummary: string; campaignType?: "search" | "performance_max" },
 ): {
   assets: AssessedAsset[];
   validationPassed: boolean;
@@ -36,8 +36,10 @@ export function assessAssets(
   });
   const headlines = assessed.filter((asset) => asset.kind === "headline");
   const descriptions = assessed.filter((asset) => asset.kind === "description");
+  const longHeadlines = assessed.filter((asset) => asset.kind === "long_headline");
   const over = assessed.some((asset) => asset.flags.includes("over_limit") || asset.flags.includes("prohibited"));
-  const incomplete = headlines.length !== 15 || descriptions.length !== 4;
+  const pmax = context.campaignType === "performance_max";
+  const incomplete = pmax ? headlines.length !== 15 || longHeadlines.length !== 5 || descriptions.length !== 5 : headlines.length !== 15 || descriptions.length !== 4;
   const validationPassed =
     !incomplete && !over && assessed.every((asset) => asset.evidenceIds.length > 0 && asset.googleCount !== null);
   if (unconfirmedOffer) limitations.push("Design-partner or alpha wording stays unconfirmed until a route approver confirms it.");
@@ -47,7 +49,7 @@ export function assessAssets(
   if (assessed.some((asset) => asset.flags.includes("prohibited"))) {
     limitations.push("A manual edit includes an unsupported claim. Export stays closed.");
   }
-  if (incomplete) limitations.push("The pack does not yet contain 15 headlines and 4 descriptions.");
+  if (incomplete) limitations.push(pmax ? "The pack does not yet contain 15 headlines, 5 long headlines, and 5 descriptions." : "The pack does not yet contain 15 headlines and 4 descriptions.");
   const hash = assessed.length
     ? contentHash({
         locale: context.locale,

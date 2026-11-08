@@ -96,7 +96,7 @@ Error bodies use `status` of `needs_input`, `model_unavailable`, `validation_fai
 
 ## Review extract
 
-CSV columns: `campaign`, `ad_group`, `locale`, `headline`, `description`, `final_url`, `review_version`. One row per headline and per description is acceptable if the header stays this set. The first line of the file is a comment that the file is a human-review extract and is not a tested Google Ads Editor import. `final_url` is the stored destination. The file is refused when that destination has not passed the URL guard.
+A Search export uses the 29-column header in R28. Keyword rows fill only campaign, ad group, keyword, and criterion type. The response header `x-adverity-export-note` says import has not been tested; that sentence is not a row in the file. A Performance Max export is plain text beginning with the unverified-handoff label and does not use the Search header. `final_url` is the stored destination. The file is refused when handoff checks or approvals fail.
 
 ## Workspace behaviour
 

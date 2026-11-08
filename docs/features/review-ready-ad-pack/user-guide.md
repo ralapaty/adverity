@@ -34,7 +34,7 @@ Sign in with one of the pilot usernames and the shared passphrase: `practitioner
 3. Assign the copy expert and the route approver by username.
 4. Sign in as the copy expert and approve the version.
 5. Sign in as the client or internal owner, confirm the destination and the offer, and approve the same version.
-6. Download the review extract. The file says it is not a tested Google Ads Editor import.
+6. Download stays closed until the handoff checks pass. A Search file carries the note “Import has not been tested.” A Performance Max file is a text handoff, not a Search import.
 
 A comment stays on the version and does not approve it. Editing ad text, the offer, the locale, or the destination starts a new version and clears both approvals.
 

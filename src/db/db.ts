@@ -124,6 +124,15 @@ CREATE TABLE IF NOT EXISTS rate_bucket (
   count INTEGER NOT NULL,
   PRIMARY KEY (actor_id, window_start)
 );
+CREATE TABLE IF NOT EXISTS pack_handoff (
+  pack_id TEXT PRIMARY KEY,
+  campaign_type TEXT NOT NULL,
+  campaign_name TEXT NOT NULL,
+  business_name TEXT NOT NULL,
+  business_name_verified INTEGER NOT NULL,
+  paths_json TEXT NOT NULL,
+  keywords_json TEXT NOT NULL
+);
 `;
 
 export type Env = Record<string, string | undefined>;

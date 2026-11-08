@@ -12,10 +12,11 @@ export class ModelUnavailable extends Error {
 export type AssetAngle = "benefit_led" | "distinctive_clear" | "problem_aware";
 
 export type DraftAsset = {
-  kind: "headline" | "description";
+  kind: "headline" | "description" | "long_headline";
   text: string;
   angle: AssetAngle;
   evidenceIds: string[];
+  role?: string;
 };
 
 export type CritiqueEntry = { beforeText: string; issue: string; afterText: string };
@@ -30,6 +31,7 @@ export type ModelPayload = {
     evidence: Array<{ id: string; excerpt: string }>;
     playbookRecords: Array<{ kind: string; body: string }>;
     keywordThemes: string[];
+    campaignType?: "search" | "performance_max";
   };
 };
 
@@ -53,6 +55,7 @@ export type PipelineInput = {
   locale: string;
   destinationUrl: string;
   offerSummary: string;
+  campaignType?: "search" | "performance_max";
 };
 
 export type StoredAsset = HashAsset & {
@@ -117,7 +120,7 @@ function empty(status: PipelineResult["status"], extra: Partial<PipelineResult> 
 function sanitiseAssets(assets: DraftAsset[], evidenceId: string, limitations: string[]): DraftAsset[] {
   const kept: DraftAsset[] = [];
   for (const asset of assets) {
-    if (!asset || (asset.kind !== "headline" && asset.kind !== "description") || typeof asset.text !== "string") continue;
+    if (!asset || (asset.kind !== "headline" && asset.kind !== "description" && asset.kind !== "long_headline") || typeof asset.text !== "string") continue;
     if (asset.text.includes(PRIVATE_PLAYBOOK_SENTINEL)) {
       limitations.push("A model response that echoed private playbook text was discarded.");
       continue;
@@ -137,13 +140,14 @@ function sanitiseAssets(assets: DraftAsset[], evidenceId: string, limitations: s
       text: asset.text,
       angle: ANGLES.includes(asset.angle) ? asset.angle : "benefit_led",
       evidenceIds: evidenceIds.length ? evidenceIds : [evidenceId],
+      role: asset.role,
     });
   }
   return kept;
 }
 
 function withPositions(assets: DraftAsset[]): HashAsset[] {
-  const counts = { headline: 0, description: 0 };
+  const counts: Record<DraftAsset["kind"], number> = { headline: 0, description: 0, long_headline: 0 };
   return assets.map((asset) => {
     counts[asset.kind] += 1;
     return {
@@ -192,6 +196,7 @@ export async function runPipeline(input: PipelineInput, deps: PipelineDeps): Pro
       evidence: [{ id: evidenceId, excerpt: fetched.excerpt }],
       playbookRecords: playbook.records.map((record) => ({ kind: record.kind, body: record.body })),
       keywordThemes: intentMap.map((row) => row.keywordTheme),
+      campaignType: input.campaignType ?? "search",
     },
   };
 
@@ -286,8 +291,12 @@ function finish(
     locale: input.locale,
     destinationUrl: input.destinationUrl,
     offerSummary: input.offerSummary,
+    campaignType: input.campaignType,
   });
-  const stored = assessed.assets;
+  const stored = assessed.assets.map((asset, index) => {
+    const role = ctx.assets[index]?.role;
+    return role ? { ...asset, flags: [...asset.flags, `role:${role}`] } : asset;
+  });
   const validationPassed = assessed.validationPassed;
   ctx.limitations.push(...assessed.limitations);
   const hash = assessed.contentHash;
