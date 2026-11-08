@@ -8,7 +8,7 @@ A practitioner submits a product URL, a brief, and keyword themes. AdVerity fetc
 
 Freelance packs are approved by an external client. In-house packs are approved by an internal owner. If one person is both practitioner and copy expert, the pack says the review is not independent.
 
-HealthCrew.ai in the sample form is an illustrative advertiser. It is not a record of a paying customer.
+HealthCrew.ai in the sample form is an illustrative advertiser. It is not a record of a paying customer. The holding page states the five checks — evidence, draft, critic, count, and sign-off — and that a draft is not a launch.
 
 ## Turn the feature on for a local pilot
 
