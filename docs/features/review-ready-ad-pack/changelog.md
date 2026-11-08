@@ -4,6 +4,8 @@
 
 ## Unreleased
 
+## 0.3.0 — 2026-11-08
+
 The holding page, sign-in, workspace, and pack page now lead with the five checks and the closed export. Labels on the pack page are readable. The HealthCrew example still cannot invent a benefit, so its export stays closed. A narrated product reel is in `exports/`.
 
 ## 0.2.0 — 2026-11-08
